@@ -24,24 +24,34 @@ export async function createDevice(formData: FormData) {
   const data = parsed.data;
   const supabase = await createClient();
 
+  const payload = {
+    organization_id: ctx.organizationId,
+    device_model_id: emptyToNull(data.device_model_id),
+    serial_number: data.serial_number,
+    imei: emptyToNull(data.imei),
+    sim_number: emptyToNull(data.sim_number),
+    status: data.status,
+    activation_date: dateOrNull(data.activation_date),
+    warranty_start: dateOrNull(data.warranty_start),
+    warranty_end: dateOrNull(data.warranty_end),
+  };
+
   const { data: row, error } = await supabase
     .from("devices")
-    .insert({
-      organization_id: ctx.organizationId,
-      device_model_id: emptyToNull(data.device_model_id),
-      serial_number: data.serial_number,
-      imei: emptyToNull(data.imei),
-      sim_number: emptyToNull(data.sim_number),
-      status: data.status,
-      activation_date: dateOrNull(data.activation_date),
-      warranty_start: dateOrNull(data.warranty_start),
-      warranty_end: dateOrNull(data.warranty_end),
-    })
-    .select("id")
+    .insert(payload)
+    .select()
     .single();
 
   if (error) {
+    console.error("Create device failed:", error);
     redirect(`/devices/new?error=${encodeURIComponent(error.message)}`);
+  }
+
+  if (!row?.id) {
+    console.error("Create device failed: no row returned", row);
+    redirect(
+      `/devices/new?error=${encodeURIComponent("Device was not saved to database")}`
+    );
   }
 
   await logAuditEvent({
@@ -82,6 +92,7 @@ export async function updateDevice(id: string, formData: FormData) {
     .eq("id", id);
 
   if (error) {
+    console.error("Update device failed:", error);
     redirect(`/devices/${id}/edit?error=${encodeURIComponent(error.message)}`);
   }
 
@@ -108,6 +119,7 @@ export async function deleteDevice(id: string): Promise<DeleteResult> {
     .eq("device_id", id);
 
   if (unlinkError) {
+    console.error("Delete device assignments failed:", unlinkError);
     return {
       success: false,
       error: `Could not remove vehicle assignments: ${unlinkError.message}`,
@@ -117,6 +129,7 @@ export async function deleteDevice(id: string): Promise<DeleteResult> {
   const { error } = await supabase.from("devices").delete().eq("id", id);
 
   if (error) {
+    console.error("Delete device failed:", error);
     return { success: false, error: error.message };
   }
 

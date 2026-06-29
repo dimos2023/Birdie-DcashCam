@@ -77,36 +77,26 @@ export interface Database {
         Row: {
           id: string;
           organization_id: string;
-          name: string;
-          contact_name: string | null;
-          email: string | null;
+          full_name: string;
           phone: string | null;
-          address: string | null;
-          city: string | null;
-          country: string | null;
-          notes: string | null;
           whatsapp_number: string | null;
+          email: string | null;
+          city: string | null;
           consent_status: "pending" | "granted" | "declined";
-          is_active: boolean;
+          notes: string | null;
           created_at: string;
-          updated_at: string;
         };
         Insert: {
           id?: string;
           organization_id: string;
-          name: string;
-          contact_name?: string | null;
-          email?: string | null;
+          full_name: string;
           phone?: string | null;
-          address?: string | null;
-          city?: string | null;
-          country?: string | null;
-          notes?: string | null;
           whatsapp_number?: string | null;
+          email?: string | null;
+          city?: string | null;
           consent_status?: "pending" | "granted" | "declined";
-          is_active?: boolean;
+          notes?: string | null;
           created_at?: string;
-          updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["customers"]["Insert"]>;
         Relationships: [];
@@ -117,30 +107,24 @@ export interface Database {
           organization_id: string;
           customer_id: string | null;
           plate_number: string;
-          make: string | null;
+          brand: string | null;
           model: string | null;
           year: number | null;
           color: string | null;
-          vin: string | null;
           status: VehicleStatus;
-          notes: string | null;
           created_at: string;
-          updated_at: string;
         };
         Insert: {
           id?: string;
           organization_id: string;
           customer_id?: string | null;
           plate_number: string;
-          make?: string | null;
+          brand?: string | null;
           model?: string | null;
           year?: number | null;
           color?: string | null;
-          vin?: string | null;
           status?: VehicleStatus;
-          notes?: string | null;
           created_at?: string;
-          updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["vehicles"]["Insert"]>;
         Relationships: [
@@ -163,20 +147,20 @@ export interface Database {
       device_models: {
         Row: {
           id: string;
-          organization_id: string;
           name: string;
-          manufacturer: string;
-          type: "dash_cam" | "gps_tracker" | "combo";
-          description: string | null;
+          category: string;
+          cameras_count: number;
+          supports_audio: boolean;
+          supports_two_way_audio: boolean;
           created_at: string;
         };
         Insert: {
           id?: string;
-          organization_id: string;
           name: string;
-          manufacturer?: string;
-          type: "dash_cam" | "gps_tracker" | "combo";
-          description?: string | null;
+          category: string;
+          cameras_count?: number;
+          supports_audio?: boolean;
+          supports_two_way_audio?: boolean;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["device_models"]["Insert"]>;
@@ -190,15 +174,11 @@ export interface Database {
           serial_number: string;
           imei: string | null;
           sim_number: string | null;
-          firmware_version: string | null;
           status: DeviceStatus;
-          last_seen_at: string | null;
           activation_date: string | null;
           warranty_start: string | null;
           warranty_end: string | null;
-          metadata: Json;
           created_at: string;
-          updated_at: string;
         };
         Insert: {
           id?: string;
@@ -207,15 +187,11 @@ export interface Database {
           serial_number: string;
           imei?: string | null;
           sim_number?: string | null;
-          firmware_version?: string | null;
           status?: DeviceStatus;
-          last_seen_at?: string | null;
           activation_date?: string | null;
           warranty_start?: string | null;
           warranty_end?: string | null;
-          metadata?: Json;
           created_at?: string;
-          updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["devices"]["Insert"]>;
         Relationships: [
@@ -238,23 +214,17 @@ export interface Database {
       vehicle_devices: {
         Row: {
           id: string;
-          organization_id: string;
           vehicle_id: string;
           device_id: string;
           assigned_at: string;
-          unassigned_at: string | null;
-          is_primary: boolean;
-          created_at: string;
+          is_active: boolean;
         };
         Insert: {
           id?: string;
-          organization_id: string;
           vehicle_id: string;
           device_id: string;
           assigned_at?: string;
-          unassigned_at?: string | null;
-          is_primary?: boolean;
-          created_at?: string;
+          is_active?: boolean;
         };
         Update: Partial<Database["public"]["Tables"]["vehicle_devices"]["Insert"]>;
         Relationships: [

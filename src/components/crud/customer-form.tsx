@@ -40,7 +40,7 @@ export function CustomerForm({
             id="full_name"
             name="full_name"
             required
-            defaultValue={customer?.name ?? ""}
+            defaultValue={customer?.full_name ?? ""}
             placeholder="Ahmed Al-Rashid"
             className="border-[#d4e4f0] bg-[#F2F8FC]/50 focus-visible:border-[#3B8ECC]"
           />

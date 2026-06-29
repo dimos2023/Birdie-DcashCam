@@ -1,13 +1,13 @@
 import "server-only";
 
 import { getCurrentProfile } from "@/lib/auth/profile";
-import { GUEST_PROFILE } from "@/lib/auth/guest-profile";
+import { DEFAULT_ORGANIZATION_ID } from "@/lib/constants/organization";
 
 export async function getActionContext() {
   const profile = await getCurrentProfile();
 
   return {
-    organizationId: profile?.organization_id ?? GUEST_PROFILE.organization_id,
+    organizationId: profile?.organization_id ?? DEFAULT_ORGANIZATION_ID,
     userId: profile?.id ?? null,
   };
 }

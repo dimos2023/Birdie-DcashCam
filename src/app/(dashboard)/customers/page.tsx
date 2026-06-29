@@ -43,7 +43,7 @@ export default async function CustomersPage({
   if (q?.trim()) {
     const term = `%${q.trim()}%`;
     query = query.or(
-      `name.ilike.${term},phone.ilike.${term},email.ilike.${term},city.ilike.${term},whatsapp_number.ilike.${term}`
+      `full_name.ilike.${term},phone.ilike.${term},email.ilike.${term},city.ilike.${term},whatsapp_number.ilike.${term}`
     );
   }
 
@@ -94,7 +94,7 @@ export default async function CustomersPage({
                   {customers.map((customer) => (
                     <TableRow key={customer.id} className="hover:bg-[#F2F8FC]/60">
                       <TableCell className="font-medium text-[#1C3664]">
-                        {displayName(customer.name)}
+                        {displayName(customer.full_name)}
                       </TableCell>
                       <TableCell>{customer.phone ?? "—"}</TableCell>
                       <TableCell>{customer.whatsapp_number ?? "—"}</TableCell>

@@ -24,7 +24,7 @@ type DeviceWithDates = Device & {
 interface ModelOption {
   id: string;
   name: string;
-  type: string;
+  category: string;
 }
 
 interface DeviceFormProps {
@@ -73,7 +73,7 @@ export function DeviceForm({
             placeholder="Select model"
             options={models.map((m) => ({
               value: m.id,
-              label: `${m.name} (${m.type.replace("_", " ")})`,
+              label: `${m.name} (${m.category.replace(/_/g, " ")})`,
             }))}
           />
         </div>

@@ -32,7 +32,7 @@ export default async function EditCustomerPage({
 
   return (
     <>
-      <PageHeader title="Edit Customer" description={customer.name ?? "Customer"}>
+      <PageHeader title="Edit Customer" description={customer.full_name ?? "Customer"}>
         <LinkButton href={`/customers/${id}`} variant="outline">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to details

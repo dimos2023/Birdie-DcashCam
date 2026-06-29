@@ -22,7 +22,7 @@ export default async function EditVehiclePage({
 
   const [{ data: vehicle }, { data: customers }] = await Promise.all([
     supabase.from("vehicles").select("*").eq("id", id).single(),
-    supabase.from("customers").select("id, name").eq("is_active", true).order("name"),
+    supabase.from("customers").select("id, full_name").order("full_name"),
   ]);
 
   if (!vehicle) notFound();

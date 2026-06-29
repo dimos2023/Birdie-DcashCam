@@ -30,13 +30,13 @@ export default async function VehiclesPage({
 
   let query = supabase
     .from("vehicles")
-    .select("*, customers(name)")
+    .select("*, customers(full_name)")
     .order("created_at", { ascending: false });
 
   if (q?.trim()) {
     const term = `%${q.trim()}%`;
     query = query.or(
-      `plate_number.ilike.${term},make.ilike.${term},model.ilike.${term},color.ilike.${term}`
+      `plate_number.ilike.${term},brand.ilike.${term},model.ilike.${term},color.ilike.${term}`
     );
   }
 
@@ -85,16 +85,16 @@ export default async function VehiclesPage({
                 </TableHeader>
                 <TableBody>
                   {vehicles.map((vehicle) => {
-                    const customer = (vehicle as { customers?: { name: string } }).customers;
+                    const customer = (vehicle as { customers?: { full_name: string } }).customers;
                     return (
                       <TableRow key={vehicle.id} className="hover:bg-[#F2F8FC]/60">
                         <TableCell className="font-semibold text-[#1C3664]">
                           {vehicle.plate_number}
                         </TableCell>
-                        <TableCell>{vehicle.make ?? "—"}</TableCell>
+                        <TableCell>{vehicle.brand ?? "—"}</TableCell>
                         <TableCell>{vehicle.model ?? "—"}</TableCell>
                         <TableCell>{vehicle.year ?? "—"}</TableCell>
-                        <TableCell>{customer?.name ?? "—"}</TableCell>
+                        <TableCell>{customer?.full_name ?? "—"}</TableCell>
                         <TableCell>
                           <Badge variant="outline">{vehicle.status}</Badge>
                         </TableCell>

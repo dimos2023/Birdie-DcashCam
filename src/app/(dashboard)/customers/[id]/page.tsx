@@ -34,7 +34,7 @@ export default async function CustomerDetailPage({
   return (
     <>
       <PageHeader
-        title={displayName(customer.name)}
+        title={displayName(customer.full_name)}
         description="Customer profile and contact details"
       >
         <div className="flex flex-wrap gap-2">
@@ -64,7 +64,7 @@ export default async function CustomerDetailPage({
           <CardContent>
             <dl className="grid gap-4 sm:grid-cols-2">
               {[
-                ["Full Name", displayName(customer.name)],
+                ["Full Name", displayName(customer.full_name)],
                 ["Phone", customer.phone],
                 ["WhatsApp", customer.whatsapp_number],
                 ["Email", customer.email],
@@ -91,14 +91,11 @@ export default async function CustomerDetailPage({
 
         <Card className="border border-[#e8f2fa] shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base text-[#1C3664]">Status</CardTitle>
+            <CardTitle className="text-base text-[#1C3664]">Record</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Badge variant={customer.is_active ? "default" : "secondary"}>
-              {customer.is_active ? "Active" : "Inactive"}
-            </Badge>
             <p className="text-xs text-muted-foreground">
-              Last updated {format(new Date(customer.updated_at), "dd MMM yyyy, HH:mm")}
+              Created {format(new Date(customer.created_at), "dd MMM yyyy, HH:mm")}
             </p>
           </CardContent>
         </Card>

@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { LinkButton } from "@/components/ui/link-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DeviceForm } from "@/components/crud/device-form";
 import { createClient } from "@/lib/supabase/server";
 import { createDevice } from "@/app/(dashboard)/devices/actions";
@@ -15,10 +16,15 @@ export default async function NewDevicePage({
 }) {
   const { error } = await searchParams;
   const supabase = await createClient();
-  const { data: models } = await supabase
+
+  const { data: models, error: modelsError } = await supabase
     .from("device_models")
-    .select("id, name, type")
+    .select("id, name, category")
     .order("name");
+
+  if (modelsError) {
+    console.error("Load device models failed:", modelsError);
+  }
 
   return (
     <>
@@ -36,7 +42,15 @@ export default async function NewDevicePage({
               Enter hardware details, warranty dates, and activation information.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            {modelsError && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  Could not load device models: {modelsError.message}. You can still save a device
+                  without selecting a model.
+                </AlertDescription>
+              </Alert>
+            )}
             <DeviceForm
               action={createDevice}
               models={models ?? []}

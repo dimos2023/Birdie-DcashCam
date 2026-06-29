@@ -23,14 +23,14 @@ export default async function LiveVehiclePage({
 
   const { data: vehicle } = await supabase
     .from("vehicles")
-    .select("*, customers(name, phone, whatsapp_number)")
+    .select("*, customers(full_name, phone, whatsapp_number)")
     .eq("id", id)
     .single();
 
   if (!vehicle) notFound();
 
   const customer = vehicle.customers as {
-    name: string;
+    full_name: string;
     phone: string | null;
     whatsapp_number?: string | null;
   } | null;
@@ -44,10 +44,9 @@ export default async function LiveVehiclePage({
       .limit(500),
     supabase
       .from("vehicle_devices")
-      .select("*, devices(serial_number, device_models(type, name))")
+      .select("*, devices(serial_number, device_models(category, name))")
       .eq("vehicle_id", id)
-      .is("unassigned_at", null)
-      .order("is_primary", { ascending: false })
+      .eq("is_active", true)
       .limit(1),
   ]);
 
@@ -55,13 +54,19 @@ export default async function LiveVehiclePage({
     | {
         devices?: {
           serial_number: string;
-          device_models?: { type: "dash_cam" | "gps_tracker" | "combo"; name: string };
+          device_models?: { category: string; name: string };
         };
       }
     | undefined;
 
   const device = primaryAssignment?.devices;
-  const deviceType = device?.device_models?.type ?? "combo";
+  const rawCategory = device?.device_models?.category ?? "combo";
+  const deviceType =
+    rawCategory === "dash_cam" ||
+    rawCategory === "gps_tracker" ||
+    rawCategory === "combo"
+      ? rawCategory
+      : "combo";
   const deviceSerial = device?.serial_number ?? "BD-DEMO-0001";
 
   const orgId = profile?.organization_id ?? vehicle.organization_id;
@@ -100,7 +105,7 @@ export default async function LiveVehiclePage({
         history={history}
         currentLocation={currentLocation}
         messages={messages}
-        customerName={customer?.name ?? null}
+        customerName={customer?.full_name ?? null}
         customerPhone={customerPhone}
         deviceSerial={deviceSerial}
         deviceType={deviceType}

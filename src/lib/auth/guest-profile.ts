@@ -3,7 +3,7 @@ import type { Profile } from "@/lib/types";
 /** Fallback profile when auth is not used as a gatekeeper. */
 export const GUEST_PROFILE: Profile = {
   id: "00000000-0000-0000-0000-000000000000",
-  organization_id: "00000000-0000-0000-0000-000000000001",
+  organization_id: "11111111-1111-1111-1111-111111111111",
   email: "guest@birdie.local",
   full_name: "Guest User",
   avatar_url: null,

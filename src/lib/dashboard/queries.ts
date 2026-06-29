@@ -29,7 +29,7 @@ export async function getDashboardData() {
     supabase
       .from("vehicle_devices")
       .select("device_id", { count: "exact", head: true })
-      .is("unassigned_at", null),
+      .eq("is_active", true),
     supabase
       .from("vehicles")
       .select("*", { count: "exact", head: true })
@@ -42,22 +42,19 @@ export async function getDashboardData() {
       .from("vehicles")
       .select("*", { count: "exact", head: true })
       .eq("status", "maintenance"),
-    supabase
-      .from("customers")
-      .select("*", { count: "exact", head: true })
-      .eq("is_active", true),
+    supabase.from("customers").select("*", { count: "exact", head: true }),
     supabase
       .from("vehicle_locations")
       .select("*", { count: "exact", head: true })
       .gte("recorded_at", todayIso),
     supabase
       .from("vehicles")
-      .select("id, plate_number, make, model, status, created_at, customers(name)")
+      .select("id, plate_number, brand, model, status, created_at, customers(full_name)")
       .order("created_at", { ascending: false })
       .limit(5),
     supabase
       .from("devices")
-      .select("id, serial_number, status, last_seen_at, created_at, device_models(name, type)")
+      .select("id, serial_number, status, created_at, device_models(name, category)")
       .order("created_at", { ascending: false })
       .limit(5),
     supabase

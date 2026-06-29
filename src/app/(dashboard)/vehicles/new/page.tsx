@@ -17,9 +17,8 @@ export default async function NewVehiclePage({
   const supabase = await createClient();
   const { data: customers } = await supabase
     .from("customers")
-    .select("id, name")
-    .eq("is_active", true)
-    .order("name");
+    .select("id, full_name")
+    .order("full_name");
 
   return (
     <>

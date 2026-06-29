@@ -28,20 +28,19 @@ export const metadata = { title: "Dashboard" };
 type VehicleRow = {
   id: string;
   plate_number: string;
-  make: string | null;
+  brand: string | null;
   model: string | null;
   status: string;
   created_at: string;
-  customers: { name: string } | null;
+  customers: { full_name: string } | null;
 };
 
 type DeviceRow = {
   id: string;
   serial_number: string;
   status: string;
-  last_seen_at: string | null;
   created_at: string;
-  device_models: { name: string; type: string } | null;
+  device_models: { name: string; category: string } | null;
 };
 
 type LocationRow = {
@@ -205,10 +204,10 @@ export default async function DashboardPage() {
                         {vehicle.plate_number}
                       </p>
                       <p className="truncate text-xs text-[#1C1C1C]/50">
-                        {[vehicle.make, vehicle.model]
+                        {[vehicle.brand, vehicle.model]
                           .filter(Boolean)
                           .join(" ") || "—"}{" "}
-                        · {vehicle.customers?.name ?? "No customer"}
+                        · {vehicle.customers?.full_name ?? "No customer"}
                       </p>
                     </div>
                     <Badge variant={statusBadgeVariant(vehicle.status)}>
@@ -243,8 +242,8 @@ export default async function DashboardPage() {
                       </p>
                       <p className="truncate text-xs text-[#1C1C1C]/50">
                         {device.device_models?.name ?? "Unknown model"}
-                        {device.device_models?.type
-                          ? ` · ${device.device_models.type.replace("_", " ")}`
+                        {device.device_models?.category
+                          ? ` · ${device.device_models.category.replace(/_/g, " ")}`
                           : ""}
                       </p>
                     </div>

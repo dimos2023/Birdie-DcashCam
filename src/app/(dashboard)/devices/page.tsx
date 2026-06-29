@@ -36,7 +36,7 @@ export default async function DevicesPage({
 
   let query = supabase
     .from("devices")
-    .select("*, device_models(name, type)")
+    .select("*, device_models(name, category)")
     .order("created_at", { ascending: false });
 
   if (q?.trim()) {
@@ -90,7 +90,7 @@ export default async function DevicesPage({
                 <TableBody>
                   {devices.map((device) => {
                     const model = (device as {
-                      device_models?: { name: string; type: string };
+                      device_models?: { name: string; category: string };
                     }).device_models;
                     return (
                       <TableRow key={device.id} className="hover:bg-[#F2F8FC]/60">

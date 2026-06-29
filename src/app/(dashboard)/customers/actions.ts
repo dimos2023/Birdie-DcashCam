@@ -23,23 +23,33 @@ export async function createCustomer(formData: FormData) {
   const data = parsed.data;
   const supabase = await createClient();
 
+  const payload = {
+    organization_id: ctx.organizationId,
+    full_name: data.full_name,
+    phone: emptyToNull(data.phone),
+    whatsapp_number: emptyToNull(data.whatsapp_number),
+    email: emptyToNull(data.email),
+    city: emptyToNull(data.city),
+    consent_status: data.consent_status,
+    notes: emptyToNull(data.notes),
+  };
+
   const { data: row, error } = await supabase
     .from("customers")
-    .insert({
-      organization_id: ctx.organizationId,
-      name: data.full_name,
-      phone: emptyToNull(data.phone),
-      whatsapp_number: emptyToNull(data.whatsapp_number),
-      email: emptyToNull(data.email),
-      city: emptyToNull(data.city),
-      consent_status: data.consent_status,
-      notes: emptyToNull(data.notes),
-    })
-    .select("id")
+    .insert(payload)
+    .select()
     .single();
 
   if (error) {
+    console.error("Create customer failed:", error);
     redirect(`/customers/new?error=${encodeURIComponent(error.message)}`);
+  }
+
+  if (!row?.id) {
+    console.error("Create customer failed: no row returned", row);
+    redirect(
+      `/customers/new?error=${encodeURIComponent("Customer was not saved to database")}`
+    );
   }
 
   await logAuditEvent({
@@ -68,7 +78,7 @@ export async function updateCustomer(id: string, formData: FormData) {
   const { error } = await supabase
     .from("customers")
     .update({
-      name: data.full_name,
+      full_name: data.full_name,
       phone: emptyToNull(data.phone),
       whatsapp_number: emptyToNull(data.whatsapp_number),
       email: emptyToNull(data.email),
@@ -79,6 +89,7 @@ export async function updateCustomer(id: string, formData: FormData) {
     .eq("id", id);
 
   if (error) {
+    console.error("Update customer failed:", error);
     redirect(`/customers/${id}/edit?error=${encodeURIComponent(error.message)}`);
   }
 
@@ -102,6 +113,7 @@ export async function deleteCustomer(id: string): Promise<DeleteResult> {
   const { error } = await supabase.from("customers").delete().eq("id", id);
 
   if (error) {
+    console.error("Delete customer failed:", error);
     return { success: false, error: error.message };
   }
 

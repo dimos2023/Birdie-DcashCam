@@ -11,7 +11,7 @@ export default async function LiveMonitoringPage() {
   const supabase = await createClient();
   const { data: vehicles } = await supabase
     .from("vehicles")
-    .select("id, plate_number, make, model, status")
+    .select("id, plate_number, brand, model, status")
     .eq("status", "active")
     .order("plate_number")
     .limit(20);
@@ -35,7 +35,7 @@ export default async function LiveMonitoringPage() {
             <CardHeader className="pb-2">
               <CardTitle className="text-[#1C3664]">{vehicle.plate_number}</CardTitle>
               <p className="text-sm text-muted-foreground">
-                {[vehicle.make, vehicle.model].filter(Boolean).join(" ") || "—"}
+                {[vehicle.brand, vehicle.model].filter(Boolean).join(" ") || "—"}
               </p>
             </CardHeader>
             <CardContent>

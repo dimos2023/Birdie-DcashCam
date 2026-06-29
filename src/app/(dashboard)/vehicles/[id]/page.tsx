@@ -20,17 +20,17 @@ export default async function VehicleDetailPage({
   const supabase = await createClient();
 
   const [{ data: vehicle }, { data: assignments }] = await Promise.all([
-    supabase.from("vehicles").select("*, customers(name)").eq("id", id).single(),
+    supabase.from("vehicles").select("*, customers(full_name)").eq("id", id).single(),
     supabase
       .from("vehicle_devices")
       .select("*, devices(serial_number, status, device_models(name))")
       .eq("vehicle_id", id)
-      .is("unassigned_at", null),
+      .eq("is_active", true),
   ]);
 
   if (!vehicle) notFound();
 
-  const customerName = (vehicle as { customers?: { name: string } }).customers?.name;
+  const customerName = (vehicle as { customers?: { full_name: string } }).customers?.full_name;
 
   return (
     <>
@@ -68,7 +68,7 @@ export default async function VehicleDetailPage({
               {[
                 ["Plate Number", vehicle.plate_number],
                 ["Customer", customerName],
-                ["Brand", vehicle.make],
+                ["Brand", vehicle.brand],
                 ["Model", vehicle.model],
                 ["Year", vehicle.year?.toString()],
                 ["Color", vehicle.color],

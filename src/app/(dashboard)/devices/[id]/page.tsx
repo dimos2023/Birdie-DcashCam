@@ -20,18 +20,18 @@ export default async function DeviceDetailPage({
   const supabase = await createClient();
 
   const [{ data: device }, { data: assignment }] = await Promise.all([
-    supabase.from("devices").select("*, device_models(name, type)").eq("id", id).single(),
+    supabase.from("devices").select("*, device_models(name, category)").eq("id", id).single(),
     supabase
       .from("vehicle_devices")
       .select("*, vehicles(plate_number)")
       .eq("device_id", id)
-      .is("unassigned_at", null)
+      .eq("is_active", true)
       .maybeSingle(),
   ]);
 
   if (!device) notFound();
 
-  const model = (device as { device_models?: { name: string; type: string } }).device_models;
+  const model = (device as { device_models?: { name: string; category: string } }).device_models;
   const vehicle = (assignment as { vehicles?: { plate_number: string } } | null)?.vehicles;
 
   return (
@@ -65,7 +65,7 @@ export default async function DeviceDetailPage({
             <dl className="grid gap-4 sm:grid-cols-2">
               {[
                 ["Serial Number", device.serial_number],
-                ["Model", model ? `${model.name} (${model.type.replace("_", " ")})` : null],
+                ["Model", model ? `${model.name} (${model.category.replace(/_/g, " ")})` : null],
                 ["IMEI", device.imei],
                 ["SIM Number", device.sim_number],
                 ["Status", device.status],
@@ -87,12 +87,7 @@ export default async function DeviceDetailPage({
                     ? format(new Date(device.warranty_end), "dd MMM yyyy")
                     : null,
                 ],
-                [
-                  "Last Seen",
-                  device.last_seen_at
-                    ? format(new Date(device.last_seen_at), "dd MMM yyyy, HH:mm")
-                    : "Never",
-                ],
+                ["Created", format(new Date(device.created_at), "dd MMM yyyy")],
               ].map(([label, value]) => (
                 <div key={label}>
                   <dt className="text-xs font-medium uppercase tracking-wide text-[#1C1C1C]/45">

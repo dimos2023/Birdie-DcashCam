@@ -16,7 +16,7 @@ const STATUS_OPTIONS = [
 
 interface CustomerOption {
   id: string;
-  name: string;
+  full_name: string;
 }
 
 interface VehicleFormProps {
@@ -58,7 +58,7 @@ export function VehicleForm({
             name="customer_id"
             defaultValue={vehicle?.customer_id ?? ""}
             placeholder="No customer"
-            options={customers.map((c) => ({ value: c.id, label: c.name }))}
+            options={customers.map((c) => ({ value: c.id, label: c.full_name }))}
           />
         </div>
         <div className="space-y-2">
@@ -66,7 +66,7 @@ export function VehicleForm({
           <Input
             id="brand"
             name="brand"
-            defaultValue={vehicle?.make ?? ""}
+            defaultValue={vehicle?.brand ?? ""}
             placeholder="Toyota"
             className="border-[#d4e4f0] bg-[#F2F8FC]/50"
           />

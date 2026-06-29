@@ -22,7 +22,7 @@ export default async function EditDevicePage({
 
   const [{ data: device }, { data: models }] = await Promise.all([
     supabase.from("devices").select("*").eq("id", id).single(),
-    supabase.from("device_models").select("id, name, type").order("name"),
+    supabase.from("device_models").select("id, name, category").order("name"),
   ]);
 
   if (!device) notFound();

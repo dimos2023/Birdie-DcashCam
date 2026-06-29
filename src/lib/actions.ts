@@ -16,10 +16,9 @@ export async function assignDeviceToVehicle(deviceId: string, vehicleId: string)
   const supabase = await createClient();
 
   const { error } = await supabase.from("vehicle_devices").insert({
-    organization_id: ctx.organizationId,
     vehicle_id: vehicleId,
     device_id: deviceId,
-    is_primary: false,
+    is_active: true,
   });
 
   if (error) throw new Error(error.message);

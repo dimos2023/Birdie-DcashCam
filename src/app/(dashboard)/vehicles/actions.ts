@@ -23,23 +23,33 @@ export async function createVehicle(formData: FormData) {
   const data = parsed.data;
   const supabase = await createClient();
 
+  const payload = {
+    organization_id: ctx.organizationId,
+    customer_id: emptyToNull(data.customer_id),
+    plate_number: data.plate_number,
+    brand: emptyToNull(data.brand),
+    model: emptyToNull(data.model),
+    year: typeof data.year === "number" ? data.year : null,
+    color: emptyToNull(data.color),
+    status: data.status,
+  };
+
   const { data: row, error } = await supabase
     .from("vehicles")
-    .insert({
-      organization_id: ctx.organizationId,
-      customer_id: emptyToNull(data.customer_id),
-      plate_number: data.plate_number,
-      make: emptyToNull(data.brand),
-      model: emptyToNull(data.model),
-      year: typeof data.year === "number" ? data.year : null,
-      color: emptyToNull(data.color),
-      status: data.status,
-    })
-    .select("id")
+    .insert(payload)
+    .select()
     .single();
 
   if (error) {
+    console.error("Create vehicle failed:", error);
     redirect(`/vehicles/new?error=${encodeURIComponent(error.message)}`);
+  }
+
+  if (!row?.id) {
+    console.error("Create vehicle failed: no row returned", row);
+    redirect(
+      `/vehicles/new?error=${encodeURIComponent("Vehicle was not saved to database")}`
+    );
   }
 
   await logAuditEvent({
@@ -70,7 +80,7 @@ export async function updateVehicle(id: string, formData: FormData) {
     .update({
       customer_id: emptyToNull(data.customer_id),
       plate_number: data.plate_number,
-      make: emptyToNull(data.brand),
+      brand: emptyToNull(data.brand),
       model: emptyToNull(data.model),
       year: typeof data.year === "number" ? data.year : null,
       color: emptyToNull(data.color),
@@ -79,6 +89,7 @@ export async function updateVehicle(id: string, formData: FormData) {
     .eq("id", id);
 
   if (error) {
+    console.error("Update vehicle failed:", error);
     redirect(`/vehicles/${id}/edit?error=${encodeURIComponent(error.message)}`);
   }
 
@@ -105,6 +116,7 @@ export async function deleteVehicle(id: string): Promise<DeleteResult> {
     .eq("vehicle_id", id);
 
   if (unlinkError) {
+    console.error("Delete vehicle assignments failed:", unlinkError);
     return {
       success: false,
       error: `Could not remove device assignments: ${unlinkError.message}`,
@@ -114,6 +126,7 @@ export async function deleteVehicle(id: string): Promise<DeleteResult> {
   const { error } = await supabase.from("vehicles").delete().eq("id", id);
 
   if (error) {
+    console.error("Delete vehicle failed:", error);
     const message = error.message.toLowerCase();
     if (
       message.includes("foreign key") ||
