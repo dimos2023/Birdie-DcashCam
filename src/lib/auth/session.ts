@@ -2,6 +2,7 @@
 export {
   getCurrentUser,
   getCurrentProfile,
+  getShellProfile,
   requireProfile,
   requireAuth,
   requireRole,

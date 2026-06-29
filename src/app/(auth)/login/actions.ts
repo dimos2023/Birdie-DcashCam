@@ -1,34 +1,17 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createServerClient } from "@supabase/ssr";
-import type { Database } from "@/lib/types";
-import { getPublicSupabaseConfig } from "@/lib/supabase/config";
+import { createClient } from "@/lib/supabase/server";
 
 /**
- * Sign in via server action — persists session in HTTP-only cookies
- * using @supabase/ssr (never use browser-only client for login).
+ * Sign in via Server Action — persists session in HTTP-only cookies
+ * through the shared server Supabase client (@supabase/ssr).
  */
 export async function signIn(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  const cookieStore = await cookies();
-  const { url, anonKey } = getPublicSupabaseConfig();
-
-  const supabase = createServerClient<Database>(url, anonKey, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          cookieStore.set(name, value, options);
-        });
-      },
-    },
-  });
+  const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 

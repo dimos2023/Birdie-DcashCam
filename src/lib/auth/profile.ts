@@ -19,6 +19,30 @@ export async function getCurrentUser() {
   return user;
 }
 
+/** Profile for shell UI — DB row when present, otherwise derived from auth user metadata. */
+export async function getShellProfile(): Promise<Profile | null> {
+  const profile = await getCurrentProfile();
+  if (profile) return profile;
+
+  const user = await getCurrentUser();
+  if (!user) return null;
+
+  const meta = user.user_metadata ?? {};
+  const now = new Date().toISOString();
+
+  return {
+    id: user.id,
+    organization_id: (meta.organization_id as string) ?? "",
+    email: user.email ?? "",
+    full_name: (meta.full_name as string) ?? user.email ?? "User",
+    avatar_url: null,
+    role: (meta.role as UserRole) ?? "viewer",
+    is_active: true,
+    created_at: user.created_at,
+    updated_at: now,
+  };
+}
+
 export async function getCurrentProfile(): Promise<Profile | null> {
   const supabase = await createClient();
   const user = await getCurrentUser();
