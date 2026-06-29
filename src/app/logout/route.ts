@@ -1,23 +1,42 @@
-import { revalidatePath } from "next/cache";
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
+import type { Database } from "@/lib/types";
 
-async function signOutAndRedirect(request: Request) {
-  const supabase = await createClient();
+async function signOutAndRedirect(request: NextRequest) {
+  const loginUrl = request.nextUrl.clone();
+  loginUrl.pathname = "/login";
+  loginUrl.search = "";
+
+  const response = NextResponse.redirect(loginUrl);
+
+  const supabase = createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+
   await supabase.auth.signOut();
 
-  revalidatePath("/", "layout");
-
-  const origin = new URL(request.url).origin;
-  return NextResponse.redirect(`${origin}/login`);
+  return response;
 }
 
 /** Signs the user out and redirects to the login page. */
-export async function POST(request: Request) {
+export async function GET(request: NextRequest) {
   return signOutAndRedirect(request);
 }
 
-/** Allow GET logout for link navigation from the sidebar and topbar. */
-export async function GET(request: Request) {
+/** Allow POST logout for form-based sign out if needed. */
+export async function POST(request: NextRequest) {
   return signOutAndRedirect(request);
 }

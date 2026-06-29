@@ -15,6 +15,7 @@ const PROTECTED_PREFIXES = [
 
 const PUBLIC_PREFIXES = [
   "/login",
+  "/auth/login",
   "/auth/callback",
   "/logout",
   "/api/webhooks",

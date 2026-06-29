@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { loginAction } from "@/app/(auth)/login/actions";
 import { getCurrentUser } from "@/lib/auth/session";
 import { BRAND } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
@@ -31,7 +30,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   }
 
   const { redirectTo, error } = await searchParams;
-  const safeRedirectTo = redirectTo && redirectTo.startsWith("/") ? redirectTo : "/dashboard";
+  const safeRedirectTo =
+    redirectTo &&
+    redirectTo.startsWith("/") &&
+    !redirectTo.startsWith("//") &&
+    !redirectTo.startsWith("/login") &&
+    !redirectTo.startsWith("/auth/")
+      ? redirectTo
+      : "/dashboard";
   const errorMessage = error ? decodeURIComponent(error) : null;
 
   return (
@@ -132,7 +138,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form action={loginAction} className="space-y-5">
+              <form action="/auth/login" method="post" className="space-y-5">
                 <input type="hidden" name="redirectTo" value={safeRedirectTo} />
 
                 {errorMessage && (
