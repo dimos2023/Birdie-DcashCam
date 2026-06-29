@@ -9,18 +9,6 @@ export const PUBLIC_ROUTES = ["/login"] as const;
 /** Route prefixes accessible without a session */
 export const PUBLIC_PREFIXES = ["/auth/callback", "/api/webhooks"] as const;
 
-/** Dashboard and app routes that require authentication */
-export const PROTECTED_PREFIXES = [
-  "/dashboard",
-  "/customers",
-  "/vehicles",
-  "/devices",
-  "/live-monitoring",
-  "/whatsapp",
-  "/reports",
-  "/settings",
-] as const;
-
 function isPublicRoute(pathname: string): boolean {
   if (PUBLIC_ROUTES.includes(pathname as (typeof PUBLIC_ROUTES)[number])) {
     return true;
@@ -32,6 +20,14 @@ function isAuthRoute(pathname: string): boolean {
   return pathname === "/login";
 }
 
+/** Copy refreshed session cookies onto redirect responses. */
+function withSessionCookies(source: NextResponse, target: NextResponse): NextResponse {
+  source.cookies.getAll().forEach(({ name, value }) => {
+    target.cookies.set(name, value);
+  });
+  return target;
+}
+
 /**
  * Refreshes the Supabase session and enforces route protection.
  * - Unauthenticated users → /login (with redirectTo preserved)
@@ -40,16 +36,17 @@ function isAuthRoute(pathname: string): boolean {
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
-  let url: string;
+  let supabaseUrl: string;
   let anonKey: string;
 
   try {
-    ({ url, anonKey } = getPublicSupabaseConfig());
-  } catch {
+    ({ url: supabaseUrl, anonKey } = getPublicSupabaseConfig());
+  } catch (err) {
+    console.error("[auth middleware] Supabase config missing:", err);
     return supabaseResponse;
   }
 
-  const supabase = createServerClient<Database>(url, anonKey, {
+  const supabase = createServerClient<Database>(supabaseUrl, anonKey, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
@@ -66,7 +63,12 @@ export async function updateSession(request: NextRequest) {
 
   const {
     data: { user },
+    error: authError,
   } = await supabase.auth.getUser();
+
+  if (authError) {
+    console.error("[auth middleware] getUser failed:", authError.message);
+  }
 
   const { pathname } = request.nextUrl;
 
@@ -80,14 +82,20 @@ export async function updateSession(request: NextRequest) {
     if (pathname !== "/") {
       redirectUrl.searchParams.set("redirectTo", pathname);
     }
-    return NextResponse.redirect(redirectUrl);
+    return withSessionCookies(
+      supabaseResponse,
+      NextResponse.redirect(redirectUrl)
+    );
   }
 
   if (user && isAuthRoute(pathname)) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/dashboard";
     redirectUrl.search = "";
-    return NextResponse.redirect(redirectUrl);
+    return withSessionCookies(
+      supabaseResponse,
+      NextResponse.redirect(redirectUrl)
+    );
   }
 
   return supabaseResponse;

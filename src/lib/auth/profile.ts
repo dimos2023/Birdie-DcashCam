@@ -12,7 +12,10 @@ export async function getCurrentUser() {
     error,
   } = await supabase.auth.getUser();
 
-  if (error) return null;
+  if (error) {
+    console.error("[auth] getUser failed:", error.message);
+    return null;
+  }
   return user;
 }
 
@@ -27,7 +30,17 @@ export async function getCurrentProfile(): Promise<Profile | null> {
     .eq("id", user.id)
     .single();
 
-  if (error) return null;
+  if (error) {
+    console.error(
+      "[auth] profile fetch failed:",
+      error.message,
+      "code:",
+      error.code,
+      "userId:",
+      user.id
+    );
+    return null;
+  }
   return data;
 }
 
