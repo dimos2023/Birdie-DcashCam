@@ -5,19 +5,12 @@ import { getPublicSupabaseConfig } from "@/lib/supabase/config";
 
 export type BrowserSupabaseClient = SupabaseClient<Database>;
 
-let browserClient: BrowserSupabaseClient | undefined;
-
 /**
- * Supabase client for Client Components.
- * Uses NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.
- * All queries are scoped by Row Level Security.
+ * Supabase client for Client Components (realtime, live updates).
+ * Not used for login — authentication is handled by Server Actions.
+ * Uses document.cookie via @supabase/ssr (never expose service role key).
  */
 export function createClient(): BrowserSupabaseClient {
-  if (browserClient) {
-    return browserClient;
-  }
-
   const { url, anonKey } = getPublicSupabaseConfig();
-  browserClient = createBrowserClient<Database>(url, anonKey);
-  return browserClient;
+  return createBrowserClient<Database>(url, anonKey);
 }

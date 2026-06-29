@@ -1,17 +1,44 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+
+export type SignInState = {
+  error?: string;
+};
+
+function safeRedirectPath(path: string | null): string {
+  if (!path || !path.startsWith("/") || path.startsWith("//")) {
+    return "/dashboard";
+  }
+  if (path === "/login" || path.startsWith("/auth/")) {
+    return "/dashboard";
+  }
+  return path;
+}
 
 /**
  * Sign in via Server Action — persists session in HTTP-only cookies
- * through the shared server Supabase client (@supabase/ssr).
+ * through createServerClient (@supabase/ssr). Never use browser-only login.
  */
-export async function signIn(formData: FormData) {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
+export async function signIn(
+  _prevState: SignInState | null,
+  formData: FormData
+): Promise<SignInState> {
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const redirectTo = safeRedirectPath(
+    (formData.get("redirectTo") as string | null) ?? null
+  );
 
-  const supabase = await createClient();
+  if (!email || !password) {
+    return { error: "Email and password are required." };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createServerSupabaseClient(cookieStore);
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -33,5 +60,15 @@ export async function signIn(formData: FormData) {
     return { error: "Session could not be established. Please try again." };
   }
 
-  redirect("/dashboard");
+  const hasAuthCookie = cookieStore
+    .getAll()
+    .some((cookie) => cookie.name.includes("-auth-token"));
+
+  if (!hasAuthCookie) {
+    console.error("[auth] signIn session not persisted: auth cookie missing after signIn");
+    return { error: "Session could not be established. Please try again." };
+  }
+
+  revalidatePath("/", "layout");
+  redirect(redirectTo);
 }

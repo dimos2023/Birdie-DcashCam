@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState } from "react";
 import { Loader2, Lock, Mail } from "lucide-react";
-import { signIn } from "@/app/(auth)/login/actions";
+import { signIn, type SignInState } from "@/app/(auth)/login/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,23 +21,10 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ redirectTo }: LoginFormProps) {
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(formData: FormData) {
-    setLoading(true);
-    setError(null);
-
-    if (redirectTo) {
-      formData.set("redirectTo", redirectTo);
-    }
-
-    const result = await signIn(formData);
-    if (result?.error) {
-      setError(result.error);
-      setLoading(false);
-    }
-  }
+  const [state, formAction, pending] = useActionState<SignInState | null, FormData>(
+    signIn,
+    null
+  );
 
   return (
     <Card className="w-full border border-[#d4e4f0]/80 bg-white shadow-xl shadow-[#1C3664]/8">
@@ -50,10 +37,14 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={handleSubmit} className="space-y-5">
-          {error && (
+        <form action={formAction} className="space-y-5">
+          {redirectTo ? (
+            <input type="hidden" name="redirectTo" value={redirectTo} />
+          ) : null}
+
+          {(state?.error ?? null) && (
             <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>{state?.error}</AlertDescription>
             </Alert>
           )}
 
@@ -70,7 +61,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
                 placeholder="you@company.com"
                 required
                 autoComplete="email"
-                disabled={loading}
+                disabled={pending}
                 className="h-11 border-[#d4e4f0] bg-[#F2F8FC] pl-10 text-[#1C1C1C] placeholder:text-[#1C1C1C]/35 focus-visible:border-[#3B8ECC] focus-visible:ring-[#3B8ECC]/25"
               />
             </div>
@@ -89,7 +80,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
                 placeholder="••••••••"
                 required
                 autoComplete="current-password"
-                disabled={loading}
+                disabled={pending}
                 className="h-11 border-[#d4e4f0] bg-[#F2F8FC] pl-10 text-[#1C1C1C] placeholder:text-[#1C1C1C]/35 focus-visible:border-[#3B8ECC] focus-visible:ring-[#3B8ECC]/25"
               />
             </div>
@@ -98,9 +89,9 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
           <Button
             type="submit"
             className="h-11 w-full bg-[#1C3664] text-base font-semibold text-white shadow-md shadow-[#1C3664]/20 hover:bg-[#1C3664]/90"
-            disabled={loading}
+            disabled={pending}
           >
-            {loading ? (
+            {pending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Signing in...

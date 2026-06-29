@@ -1,6 +1,8 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/login-form";
 import { LoginErrorBanner } from "@/components/auth/login-error-banner";
+import { getCurrentUser } from "@/lib/auth/session";
 import { BRAND } from "@/lib/constants";
 import { Car, MapPin, Radio, Shield } from "lucide-react";
 
@@ -14,6 +16,11 @@ interface LoginPageProps {
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const user = await getCurrentUser();
+  if (user) {
+    redirect("/dashboard");
+  }
+
   const { redirectTo } = await searchParams;
 
   return (
