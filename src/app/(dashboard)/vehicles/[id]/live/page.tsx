@@ -35,7 +35,8 @@ export default async function LiveVehiclePage({
     whatsapp_number?: string | null;
   } | null;
 
-  const [{ data: dbLocations }, { data: assignments }] = await Promise.all([
+  const [{ data: dbLocations }, { data: assignments }, { data: cameraStreams }] =
+    await Promise.all([
     supabase
       .from("vehicle_locations")
       .select("*")
@@ -48,6 +49,11 @@ export default async function LiveVehiclePage({
       .eq("vehicle_id", id)
       .eq("is_active", true)
       .limit(1),
+    supabase
+      .from("camera_streams")
+      .select("id, channel_name, is_live, stream_type, stream_url")
+      .eq("vehicle_id", id)
+      .order("channel_name"),
   ]);
 
   const primaryAssignment = assignments?.[0] as
@@ -67,7 +73,20 @@ export default async function LiveVehiclePage({
     rawCategory === "combo"
       ? rawCategory
       : "combo";
-  const deviceSerial = device?.serial_number ?? "BD-DEMO-0001";
+  const deviceSerial = device?.serial_number ?? null;
+  const hasVideoDevice = Boolean(device) && deviceType !== "gps_tracker";
+  const demoLiveStreams =
+    hasVideoDevice && !(cameraStreams?.length)
+      ? [
+          { id: "demo-front", channel_name: "Front", is_live: true, stream_type: "hls" },
+          { id: "demo-rear", channel_name: "Rear", is_live: true, stream_type: "hls" },
+          ...(deviceType === "combo"
+            ? [{ id: "demo-cabin", channel_name: "Cabin", is_live: true, stream_type: "hls" }]
+            : []),
+        ]
+      : undefined;
+
+  const resolvedStreams = cameraStreams?.length ? cameraStreams : demoLiveStreams;
 
   const orgId = profile?.organization_id ?? vehicle.organization_id;
   const useDemo = !dbLocations?.length;
@@ -107,8 +126,10 @@ export default async function LiveVehiclePage({
         messages={messages}
         customerName={customer?.full_name ?? null}
         customerPhone={customerPhone}
-        deviceSerial={deviceSerial}
+        deviceSerial={deviceSerial ?? "—"}
         deviceType={deviceType}
+        hasVideoDevice={hasVideoDevice}
+        cameraStreams={resolvedStreams}
         isDemo={useDemo}
       />
     </div>

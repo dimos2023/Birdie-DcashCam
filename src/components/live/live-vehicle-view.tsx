@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { VehicleLiveHeader } from "@/components/live/vehicle-live-header";
 import { LiveMap } from "@/components/live/live-map";
-import { CameraGrid } from "@/components/live/camera-grid";
+import { CameraGrid, type CameraStreamData } from "@/components/live/camera-grid";
 import { WhatsappChatBox } from "@/components/live/whatsapp-chat-box";
 import { LocationHistory } from "@/components/live/location-history";
 import type { Vehicle, VehicleLocation, WhatsappMessage } from "@/lib/types";
@@ -20,6 +20,8 @@ interface LiveVehicleViewProps {
   customerPhone?: string | null;
   deviceSerial?: string | null;
   deviceType?: DeviceType;
+  hasVideoDevice?: boolean;
+  cameraStreams?: CameraStreamData[];
   isDemo?: boolean;
 }
 
@@ -32,6 +34,8 @@ export function LiveVehicleView({
   customerPhone,
   deviceSerial,
   deviceType,
+  hasVideoDevice = false,
+  cameraStreams,
   isDemo = false,
 }: LiveVehicleViewProps) {
   const [playbackLocation, setPlaybackLocation] = useState<VehicleLocation | null>(null);
@@ -80,7 +84,12 @@ export function LiveVehicleView({
       >
         <div className="space-y-3 lg:col-span-3">
           <h3 className="text-base font-semibold text-[#1C3664]">Camera Streams</h3>
-          <CameraGrid vehicleId={vehicle.id} deviceType={deviceType ?? "combo"} />
+          <CameraGrid
+            vehicleId={vehicle.id}
+            deviceType={deviceType ?? null}
+            hasVideoDevice={hasVideoDevice}
+            streams={cameraStreams}
+          />
         </div>
 
         <div className="space-y-3 lg:col-span-2">
