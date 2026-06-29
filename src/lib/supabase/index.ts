@@ -22,3 +22,5 @@ export {
   SupabaseConfigError,
   type PublicSupabaseConfig,
 } from "./config";
+
+export { updateSession } from "./middleware";

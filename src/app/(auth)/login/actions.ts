@@ -1,72 +1,40 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
-export type SignInState = {
-  error?: string;
-};
-
-function safeRedirectPath(path: string | null): string {
+function safeRedirectPath(path: string): string {
   if (!path || !path.startsWith("/") || path.startsWith("//")) {
     return "/dashboard";
   }
-  if (path === "/login" || path.startsWith("/auth/")) {
+  if (path.startsWith("/login") || path.startsWith("/auth/")) {
     return "/dashboard";
   }
   return path;
 }
 
-/**
- * Sign in via Server Action — persists session in HTTP-only cookies
- * through createServerClient (@supabase/ssr). Never use browser-only login.
- */
-export async function signIn(
-  _prevState: SignInState | null,
-  formData: FormData
-): Promise<SignInState> {
-  const email = String(formData.get("email") ?? "").trim();
-  const password = String(formData.get("password") ?? "");
+export async function loginAction(formData: FormData) {
+  const email = String(formData.get("email") || "").trim();
+  const password = String(formData.get("password") || "");
   const redirectTo = safeRedirectPath(
-    (formData.get("redirectTo") as string | null) ?? null
+    String(formData.get("redirectTo") || "/dashboard")
   );
 
   if (!email || !password) {
-    return { error: "Email and password are required." };
+    redirect(`/login?error=${encodeURIComponent("Email and password are required.")}`);
   }
 
-  const cookieStore = await cookies();
-  const supabase = createServerSupabaseClient(cookieStore);
+  const supabase = await createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
   if (error) {
-    console.error("[auth] signIn failed:", error.message);
-    return { error: error.message };
-  }
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    console.error(
-      "[auth] signIn session not persisted:",
-      userError?.message ?? "no user after signIn"
-    );
-    return { error: "Session could not be established. Please try again." };
-  }
-
-  const hasAuthCookie = cookieStore
-    .getAll()
-    .some((cookie) => cookie.name.includes("-auth-token"));
-
-  if (!hasAuthCookie) {
-    console.error("[auth] signIn session not persisted: auth cookie missing after signIn");
-    return { error: "Session could not be established. Please try again." };
+    console.error("[auth] loginAction failed:", error.message);
+    redirect(`/login?error=${encodeURIComponent(error.message)}`);
   }
 
   revalidatePath("/", "layout");

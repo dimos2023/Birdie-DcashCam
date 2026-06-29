@@ -1,10 +1,19 @@
-import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { LoginForm } from "@/components/auth/login-form";
-import { LoginErrorBanner } from "@/components/auth/login-error-banner";
+import { loginAction } from "@/app/(auth)/login/actions";
 import { getCurrentUser } from "@/lib/auth/session";
 import { BRAND } from "@/lib/constants";
-import { Car, MapPin, Radio, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Car, Lock, Mail, MapPin, Radio, Shield } from "lucide-react";
 
 export const metadata = {
   title: "Sign In",
@@ -21,7 +30,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     redirect("/dashboard");
   }
 
-  const { redirectTo } = await searchParams;
+  const { redirectTo, error } = await searchParams;
+  const safeRedirectTo = redirectTo && redirectTo.startsWith("/") ? redirectTo : "/dashboard";
+  const errorMessage = error ? decodeURIComponent(error) : null;
 
   return (
     <div className="flex min-h-screen">
@@ -110,11 +121,71 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <p className="mt-1.5 text-sm text-[#1C1C1C]/60">{BRAND.tagline}</p>
         </div>
 
-        <div className="w-full max-w-md space-y-4">
-          <Suspense fallback={null}>
-            <LoginErrorBanner />
-          </Suspense>
-          <LoginForm redirectTo={redirectTo} />
+        <div className="w-full max-w-md">
+          <Card className="w-full border border-[#d4e4f0]/80 bg-white shadow-xl shadow-[#1C3664]/8">
+            <CardHeader className="space-y-1.5 pb-2">
+              <CardTitle className="text-2xl font-bold tracking-tight text-[#1C3664]">
+                Welcome back
+              </CardTitle>
+              <CardDescription className="text-[#1C1C1C]/55">
+                Sign in to your {BRAND.name} account
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form action={loginAction} className="space-y-5">
+                <input type="hidden" name="redirectTo" value={safeRedirectTo} />
+
+                {errorMessage && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{errorMessage}</AlertDescription>
+                  </Alert>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium text-[#1C3664]">
+                    Email address
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[#1C1C1C]/40" />
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="you@company.com"
+                      required
+                      autoComplete="email"
+                      className="h-11 border-[#d4e4f0] bg-[#F2F8FC] pl-10 text-[#1C1C1C] placeholder:text-[#1C1C1C]/35 focus-visible:border-[#3B8ECC] focus-visible:ring-[#3B8ECC]/25"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm font-medium text-[#1C3664]">
+                    Password
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[#1C1C1C]/40" />
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      placeholder="••••••••"
+                      required
+                      autoComplete="current-password"
+                      className="h-11 border-[#d4e4f0] bg-[#F2F8FC] pl-10 text-[#1C1C1C] placeholder:text-[#1C1C1C]/35 focus-visible:border-[#3B8ECC] focus-visible:ring-[#3B8ECC]/25"
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="h-11 w-full bg-[#1C3664] text-base font-semibold text-white shadow-md shadow-[#1C3664]/20 hover:bg-[#1C3664]/90"
+                >
+                  Sign in to Dashboard
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
 
         <p className="mt-10 text-center text-xs text-[#1C1C1C]/45 xl:hidden">
