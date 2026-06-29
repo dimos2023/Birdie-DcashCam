@@ -50,10 +50,10 @@ function BrandLogo({ className }: { className?: string }) {
     <Image
       src="/images/birdie-logo.png"
       alt="Birdie"
-      width={200}
-      height={88}
+      width={120}
+      height={52}
       priority
-      className={className ?? "h-auto w-44 object-contain"}
+      className={className ?? "h-auto w-28 object-contain"}
     />
   );
 }
@@ -82,34 +82,35 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           sizes="(min-width: 1280px) 50vw, 0px"
           className="object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1C3664]/92 via-[#1C3664]/55 to-[#0a1628]/88" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628]/95 via-[#1C3664]/20 to-transparent" />
+        <div className="absolute inset-0 bg-[#1C3664]/25" />
+        <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-[#1C3664]/75 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-[#0a1628]/85 via-[#0a1628]/35 to-transparent" />
 
-        <div className="relative z-10 p-10 xl:p-14">
-          <BrandLogo className="h-auto w-48 object-contain drop-shadow-lg xl:w-52" />
-          <h1 className="mt-8 text-3xl font-bold tracking-tight text-white xl:text-4xl">
+        <div className="relative z-10 p-10 xl:p-12">
+          <BrandLogo className="h-auto w-28 object-contain drop-shadow-md" />
+          <h1 className="mt-6 text-2xl font-bold tracking-tight text-white/95 xl:text-3xl">
             {BRAND.name}
           </h1>
-          <p className="mt-3 max-w-md text-lg leading-relaxed text-white/80">
+          <p className="mt-2 max-w-sm text-base leading-relaxed text-white/60">
             {BRAND.tagline}
           </p>
-          <p className="mt-2 text-sm font-medium text-[#3B8ECC]">
+          <p className="mt-1.5 text-xs font-medium text-[#3B8ECC]/80">
             Intelligent fleet monitoring for Saudi Arabia
           </p>
         </div>
 
-        <div className="relative z-10 space-y-4 p-10 xl:p-14">
+        <div className="relative z-10 space-y-2.5 p-10 pt-0 xl:p-12 xl:pt-0">
           {FEATURES.map((feature) => (
             <div
               key={feature.title}
-              className="flex gap-4 rounded-xl border border-white/15 bg-[#1C3664]/45 p-4 shadow-lg backdrop-blur-md"
+              className="flex gap-3 rounded-lg border border-white/8 bg-white/5 px-3 py-2.5 backdrop-blur-[2px]"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#3B8ECC]/30">
-                <feature.icon className="h-5 w-5 text-[#3B8ECC]" />
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10">
+                <feature.icon className="h-4 w-4 text-white/70" />
               </div>
               <div>
-                <p className="font-semibold text-white">{feature.title}</p>
-                <p className="mt-0.5 text-sm leading-relaxed text-white/65">
+                <p className="text-sm font-medium text-white/85">{feature.title}</p>
+                <p className="mt-0.5 text-xs leading-relaxed text-white/45">
                   {feature.desc}
                 </p>
               </div>
@@ -117,7 +118,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           ))}
         </div>
 
-        <p className="relative z-10 p-10 text-xs text-white/40 xl:p-14">
+        <p className="relative z-10 p-10 text-xs text-white/30 xl:p-12">
           © {new Date().getFullYear()} Birdie · Saudi Automotive Technology
         </p>
       </div>
@@ -126,7 +127,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <div className="flex flex-1 flex-col items-center justify-center bg-[#F2F8FC] px-6 py-10 sm:px-10">
         <div className="mb-8 w-full max-w-md text-center xl:hidden">
           <div className="mx-auto mb-4 flex justify-center">
-            <BrandLogo className="h-auto w-40 object-contain" />
+            <BrandLogo className="h-auto w-24 object-contain" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-[#1C3664]">
             {BRAND.name}
