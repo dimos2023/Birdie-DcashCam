@@ -179,6 +179,10 @@ export interface Database {
           activation_date: string | null;
           warranty_start: string | null;
           warranty_end: string | null;
+          last_seen_at: string | null;
+          last_latitude: number | null;
+          last_longitude: number | null;
+          last_speed_kmh: number | null;
           created_at: string;
         };
         Insert: {
@@ -193,6 +197,10 @@ export interface Database {
           activation_date?: string | null;
           warranty_start?: string | null;
           warranty_end?: string | null;
+          last_seen_at?: string | null;
+          last_latitude?: number | null;
+          last_longitude?: number | null;
+          last_speed_kmh?: number | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["devices"]["Insert"]>;
@@ -409,6 +417,84 @@ export interface Database {
           },
         ];
       };
+      gps51_webhook_logs: {
+        Row: {
+          id: string;
+          received_at: string;
+          headers: Json;
+          payload: Json;
+          parsed_device_id: string | null;
+          parsed_latitude: number | null;
+          parsed_longitude: number | null;
+          parsed_speed_kmh: number | null;
+          parsed_address: string | null;
+          parsed_gps_status: string | null;
+          status: string;
+          error_message: string | null;
+        };
+        Insert: {
+          id?: string;
+          received_at?: string;
+          headers?: Json;
+          payload?: Json;
+          parsed_device_id?: string | null;
+          parsed_latitude?: number | null;
+          parsed_longitude?: number | null;
+          parsed_speed_kmh?: number | null;
+          parsed_address?: string | null;
+          parsed_gps_status?: string | null;
+          status?: string;
+          error_message?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["gps51_webhook_logs"]["Insert"]>;
+        Relationships: [];
+      };
+      gps51_device_mappings: {
+        Row: {
+          id: string;
+          gps51_device_id: string;
+          device_id: string | null;
+          vehicle_id: string | null;
+          customer_id: string | null;
+          display_name: string | null;
+          is_active: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          gps51_device_id: string;
+          device_id?: string | null;
+          vehicle_id?: string | null;
+          customer_id?: string | null;
+          display_name?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["gps51_device_mappings"]["Insert"]>;
+        Relationships: [
+          {
+            foreignKeyName: "gps51_device_mappings_device_id_fkey";
+            columns: ["device_id"];
+            isOneToOne: false;
+            referencedRelation: "devices";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "gps51_device_mappings_vehicle_id_fkey";
+            columns: ["vehicle_id"];
+            isOneToOne: false;
+            referencedRelation: "vehicles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "gps51_device_mappings_customer_id_fkey";
+            columns: ["customer_id"];
+            isOneToOne: false;
+            referencedRelation: "customers";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -436,3 +522,5 @@ export type CameraStream = Database["public"]["Tables"]["camera_streams"]["Row"]
 export type WhatsappConversation = Database["public"]["Tables"]["whatsapp_conversations"]["Row"];
 export type WhatsappMessage = Database["public"]["Tables"]["whatsapp_messages"]["Row"];
 export type AuditLog = Database["public"]["Tables"]["audit_logs"]["Row"];
+export type Gps51WebhookLog = Database["public"]["Tables"]["gps51_webhook_logs"]["Row"];
+export type Gps51DeviceMapping = Database["public"]["Tables"]["gps51_device_mappings"]["Row"];

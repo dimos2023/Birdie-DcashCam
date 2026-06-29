@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Map, MessageCircle, Database, Shield } from "lucide-react";
-import { getGoogleMapsApiKey, getWhatsAppConfig } from "@/lib/env";
+import { Map, MessageCircle, Database, Shield, Radio } from "lucide-react";
+import Link from "next/link";
+import { getGoogleMapsApiKey, getWhatsAppConfig, getGps51Config } from "@/lib/env.server";
 import { getPublicSupabaseConfig } from "@/lib/supabase/config";
 
 export const metadata = { title: "Integrations" };
@@ -13,6 +14,7 @@ export const metadata = { title: "Integrations" };
 export default function IntegrationsSettingsPage() {
   const whatsapp = getWhatsAppConfig();
   const mapsKey = getGoogleMapsApiKey();
+  const gps51 = getGps51Config();
   const supabaseConfigured = (() => {
     try {
       getPublicSupabaseConfig();
@@ -118,6 +120,46 @@ export default function IntegrationsSettingsPage() {
             </CardContent>
           </Card>
         ))}
+
+        <Card className="border-0 shadow-sm">
+          <CardHeader>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-[#1C3664]/10 p-2">
+                  <Radio className="h-5 w-5 text-[#1C3664]" />
+                </div>
+                <div>
+                  <CardTitle className="text-[#1C3664]">GPS51</CardTitle>
+                  <CardDescription>
+                    HTTP JSON webhook for forwarded GPS device locations and telemetry
+                  </CardDescription>
+                </div>
+              </div>
+              <Badge
+                variant={gps51.webhookSecretConfigured ? "default" : "secondary"}
+                className={
+                  gps51.webhookSecretConfigured
+                    ? "bg-green-100 text-green-800 hover:bg-green-100"
+                    : ""
+                }
+              >
+                {gps51.webhookSecretConfigured ? "Configured" : "Not Configured"}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Server-only</Label>
+              <Input value="GPS51_WEBHOOK_SECRET" readOnly className="font-mono text-sm" />
+            </div>
+            <Link
+              href="/settings/integrations/gps51"
+              className="inline-flex text-sm font-medium text-[#3B8ECC] hover:text-[#1C3664]"
+            >
+              Open GPS51 setup, logs, and device mappings →
+            </Link>
+          </CardContent>
+        </Card>
 
         <Card className="border-0 shadow-sm">
           <CardHeader>

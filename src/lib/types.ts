@@ -19,6 +19,8 @@ export type {
   WhatsappConversation,
   WhatsappMessage,
   AuditLog,
+  Gps51WebhookLog,
+  Gps51DeviceMapping,
 } from "@/types/database";
 
 export const BRAND_COLORS = {
