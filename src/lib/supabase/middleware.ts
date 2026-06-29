@@ -4,10 +4,10 @@ import type { Database } from "@/lib/types";
 import { getPublicSupabaseConfig } from "@/lib/supabase/config";
 
 /** Routes accessible without a session */
-export const PUBLIC_ROUTES = ["/login"] as const;
+const PUBLIC_ROUTES = ["/login"] as const;
 
 /** Route prefixes accessible without a session */
-export const PUBLIC_PREFIXES = ["/auth/callback", "/api/webhooks"] as const;
+const PUBLIC_PREFIXES = ["/auth/callback", "/api/webhooks"] as const;
 
 function isPublicRoute(pathname: string): boolean {
   if (PUBLIC_ROUTES.includes(pathname as (typeof PUBLIC_ROUTES)[number])) {
@@ -20,21 +20,32 @@ function isAuthRoute(pathname: string): boolean {
   return pathname === "/login";
 }
 
-/** Copy refreshed session cookies onto redirect responses. */
-function withSessionCookies(source: NextResponse, target: NextResponse): NextResponse {
-  source.cookies.getAll().forEach(({ name, value }) => {
-    target.cookies.set(name, value);
+type CookieToSet = {
+  name: string;
+  value: string;
+  options?: Parameters<NextResponse["cookies"]["set"]>[2];
+};
+
+/** Apply refreshed Supabase session cookies to any response. */
+function applySessionCookies(
+  response: NextResponse,
+  cookiesToSet: CookieToSet[]
+): NextResponse {
+  cookiesToSet.forEach(({ name, value, options }) => {
+    response.cookies.set(name, value, options);
   });
-  return target;
+  return response;
 }
 
 /**
  * Refreshes the Supabase session and enforces route protection.
- * - Unauthenticated users → /login (with redirectTo preserved)
+ * - Unauthenticated users on protected routes → /login
  * - Authenticated users on /login → /dashboard
+ * - Never redirects authenticated users away from /dashboard
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
+  const sessionCookies: CookieToSet[] = [];
 
   let supabaseUrl: string;
   let anonKey: string;
@@ -52,11 +63,16 @@ export async function updateSession(request: NextRequest) {
         return request.cookies.getAll();
       },
       setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+        cookiesToSet.forEach(({ name, value, options }) => {
+          sessionCookies.push({ name, value, options });
+          request.cookies.set(name, value);
+        });
+
         supabaseResponse = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) =>
-          supabaseResponse.cookies.set(name, value, options)
-        );
+
+        cookiesToSet.forEach(({ name, value, options }) => {
+          supabaseResponse.cookies.set(name, value, options);
+        });
       },
     },
   });
@@ -73,30 +89,33 @@ export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname === "/logout") {
-    return supabaseResponse;
+    return applySessionCookies(supabaseResponse, sessionCookies);
   }
 
-  if (!user && !isPublicRoute(pathname)) {
+  if (isPublicRoute(pathname)) {
+    if (user && isAuthRoute(pathname)) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/dashboard";
+      redirectUrl.search = "";
+      return applySessionCookies(
+        NextResponse.redirect(redirectUrl),
+        sessionCookies
+      );
+    }
+    return applySessionCookies(supabaseResponse, sessionCookies);
+  }
+
+  if (!user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
     if (pathname !== "/") {
       redirectUrl.searchParams.set("redirectTo", pathname);
     }
-    return withSessionCookies(
-      supabaseResponse,
-      NextResponse.redirect(redirectUrl)
+    return applySessionCookies(
+      NextResponse.redirect(redirectUrl),
+      sessionCookies
     );
   }
 
-  if (user && isAuthRoute(pathname)) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/dashboard";
-    redirectUrl.search = "";
-    return withSessionCookies(
-      supabaseResponse,
-      NextResponse.redirect(redirectUrl)
-    );
-  }
-
-  return supabaseResponse;
+  return applySessionCookies(supabaseResponse, sessionCookies);
 }

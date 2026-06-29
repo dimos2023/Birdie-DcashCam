@@ -15,27 +15,6 @@ import {
   dateOrNull,
 } from "@/lib/validations/crud";
 
-export async function signIn(formData: FormData) {
-  const supabase = await createClient();
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-  if (error) {
-    console.error("[auth] signIn failed:", error.message);
-    return { error: error.message };
-  }
-
-  const redirectTo = formData.get("redirectTo") as string | null;
-  const destination =
-    redirectTo?.startsWith("/") && !redirectTo.startsWith("//")
-      ? redirectTo
-      : "/dashboard";
-
-  redirect(destination);
-}
-
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();

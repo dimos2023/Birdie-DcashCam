@@ -27,8 +27,8 @@ export async function createClient(): Promise<ServerSupabaseClient> {
           cookiesToSet.forEach(({ name, value, options }) =>
             cookieStore.set(name, value, options)
           );
-        } catch {
-          // Server Components cannot set cookies — middleware handles refresh.
+        } catch (err) {
+          console.error("[auth] server setAll cookies failed:", err);
         }
       },
     },

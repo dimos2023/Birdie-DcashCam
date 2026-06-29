@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Loader2, Lock, Mail } from "lucide-react";
-import { signIn } from "@/lib/actions";
+import { signIn } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
