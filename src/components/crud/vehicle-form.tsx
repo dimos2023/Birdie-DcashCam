@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { FormSelect } from "@/components/crud/form-select";
 import { FormSubmitButton } from "@/components/crud/form-submit-button";
 import { FormError } from "@/components/crud/form-error";
+import { LinkButton } from "@/components/ui/link-button";
 import type { Vehicle } from "@/lib/types";
 
 const STATUS_OPTIONS = [
@@ -24,6 +25,7 @@ interface VehicleFormProps {
   customers: CustomerOption[];
   error?: string | null;
   submitLabel?: string;
+  cancelHref?: string;
 }
 
 export function VehicleForm({
@@ -32,6 +34,7 @@ export function VehicleForm({
   customers,
   error,
   submitLabel = "Save Vehicle",
+  cancelHref = "/vehicles",
 }: VehicleFormProps) {
   return (
     <form action={action} className="space-y-5">
@@ -110,7 +113,12 @@ export function VehicleForm({
           />
         </div>
       </div>
-      <FormSubmitButton label={submitLabel} loadingLabel="Saving..." />
+      <div className="flex flex-wrap gap-3">
+        <FormSubmitButton label={submitLabel} loadingLabel="Saving..." />
+        <LinkButton href={cancelHref} variant="outline">
+          Cancel
+        </LinkButton>
+      </div>
     </form>
   );
 }

@@ -4,6 +4,7 @@ import { Car, Eye, Pencil, Plus, Radio } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { LinkButton } from "@/components/ui/link-button";
 import { Badge } from "@/components/ui/badge";
+import { DeleteConfirmButton } from "@/components/ui/delete-confirm-button";
 import {
   Table,
   TableBody,
@@ -15,6 +16,7 @@ import {
 import { EntitySearch } from "@/components/crud/entity-search";
 import { ListEmptyState } from "@/components/crud/list-empty-state";
 import { createClient } from "@/lib/supabase/server";
+import { deleteVehicle } from "@/app/(dashboard)/vehicles/actions";
 
 export const metadata = { title: "Vehicles" };
 
@@ -71,12 +73,13 @@ export default async function VehiclesPage({
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead>Plate</TableHead>
-                    <TableHead>Brand / Model</TableHead>
+                    <TableHead>Plate Number</TableHead>
+                    <TableHead>Brand</TableHead>
+                    <TableHead>Model</TableHead>
                     <TableHead>Year</TableHead>
-                    <TableHead>Color</TableHead>
                     <TableHead>Customer</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Created</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -88,14 +91,15 @@ export default async function VehiclesPage({
                         <TableCell className="font-semibold text-[#1C3664]">
                           {vehicle.plate_number}
                         </TableCell>
-                        <TableCell>
-                          {[vehicle.make, vehicle.model].filter(Boolean).join(" ") || "—"}
-                        </TableCell>
+                        <TableCell>{vehicle.make ?? "—"}</TableCell>
+                        <TableCell>{vehicle.model ?? "—"}</TableCell>
                         <TableCell>{vehicle.year ?? "—"}</TableCell>
-                        <TableCell>{vehicle.color ?? "—"}</TableCell>
                         <TableCell>{customer?.name ?? "—"}</TableCell>
                         <TableCell>
                           <Badge variant="outline">{vehicle.status}</Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {format(new Date(vehicle.created_at), "dd MMM yyyy")}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
@@ -104,7 +108,7 @@ export default async function VehiclesPage({
                               View
                             </LinkButton>
                             <LinkButton
-                              href={`/vehicles/${vehicle.id}?mode=edit`}
+                              href={`/vehicles/${vehicle.id}/edit`}
                               size="sm"
                               variant="outline"
                             >
@@ -119,6 +123,12 @@ export default async function VehiclesPage({
                               <Radio className="mr-1 h-3.5 w-3.5" />
                               Live
                             </LinkButton>
+                            <DeleteConfirmButton
+                              id={vehicle.id}
+                              confirmMessage="Are you sure you want to delete this vehicle?"
+                              deleteAction={deleteVehicle}
+                              redirectTo="/vehicles"
+                            />
                           </div>
                         </TableCell>
                       </TableRow>

@@ -4,6 +4,7 @@ import { Cpu, Eye, Pencil, Plus } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { LinkButton } from "@/components/ui/link-button";
 import { Badge } from "@/components/ui/badge";
+import { DeleteConfirmButton } from "@/components/ui/delete-confirm-button";
 import {
   Table,
   TableBody,
@@ -15,6 +16,7 @@ import {
 import { EntitySearch } from "@/components/crud/entity-search";
 import { ListEmptyState } from "@/components/crud/list-empty-state";
 import { createClient } from "@/lib/supabase/server";
+import { deleteDevice } from "@/app/(dashboard)/devices/actions";
 
 export const metadata = { title: "Devices" };
 
@@ -80,8 +82,8 @@ export default async function DevicesPage({
                     <TableHead>IMEI</TableHead>
                     <TableHead>SIM</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Activated</TableHead>
-                    <TableHead>Last Seen</TableHead>
+                    <TableHead>Activation Date</TableHead>
+                    <TableHead>Warranty End</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -95,9 +97,7 @@ export default async function DevicesPage({
                         <TableCell className="font-mono font-medium text-[#1C3664]">
                           {device.serial_number}
                         </TableCell>
-                        <TableCell>
-                          {model ? `${model.name}` : "—"}
-                        </TableCell>
+                        <TableCell>{model?.name ?? "—"}</TableCell>
                         <TableCell className="font-mono text-sm">{device.imei ?? "—"}</TableCell>
                         <TableCell>{device.sim_number ?? "—"}</TableCell>
                         <TableCell>
@@ -111,9 +111,9 @@ export default async function DevicesPage({
                             : "—"}
                         </TableCell>
                         <TableCell className="text-muted-foreground">
-                          {device.last_seen_at
-                            ? format(new Date(device.last_seen_at), "dd MMM yyyy, HH:mm")
-                            : "Never"}
+                          {device.warranty_end
+                            ? format(new Date(device.warranty_end), "dd MMM yyyy")
+                            : "—"}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
@@ -122,13 +122,19 @@ export default async function DevicesPage({
                               View
                             </LinkButton>
                             <LinkButton
-                              href={`/devices/${device.id}?mode=edit`}
+                              href={`/devices/${device.id}/edit`}
                               size="sm"
                               variant="outline"
                             >
                               <Pencil className="mr-1 h-3.5 w-3.5" />
                               Edit
                             </LinkButton>
+                            <DeleteConfirmButton
+                              id={device.id}
+                              confirmMessage="Are you sure you want to delete this device?"
+                              deleteAction={deleteDevice}
+                              redirectTo="/devices"
+                            />
                           </div>
                         </TableCell>
                       </TableRow>

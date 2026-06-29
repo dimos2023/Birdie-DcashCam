@@ -4,7 +4,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DeviceForm } from "@/components/crud/device-form";
 import { createClient } from "@/lib/supabase/server";
-import { createDevice } from "@/lib/actions";
+import { createDevice } from "@/app/(dashboard)/devices/actions";
 
 export const metadata = { title: "Register Device" };
 
@@ -41,7 +41,7 @@ export default async function NewDevicePage({
               action={createDevice}
               models={models ?? []}
               error={error ? decodeURIComponent(error) : null}
-              submitLabel="Register Device"
+              submitLabel="Create Device"
             />
           </CardContent>
         </Card>

@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { LinkButton } from "@/components/ui/link-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomerForm } from "@/components/crud/customer-form";
-import { createCustomer } from "@/lib/actions";
+import { createCustomer } from "@/app/(dashboard)/customers/actions";
 
 export const metadata = { title: "New Customer" };
 

@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FormSelect } from "@/components/crud/form-select";
 import { FormSubmitButton } from "@/components/crud/form-submit-button";
 import { FormError } from "@/components/crud/form-error";
+import { LinkButton } from "@/components/ui/link-button";
 import type { Customer } from "@/lib/types";
 
 const CONSENT_OPTIONS = [
@@ -19,6 +20,7 @@ interface CustomerFormProps {
   customer?: Customer;
   error?: string | null;
   submitLabel?: string;
+  cancelHref?: string;
 }
 
 export function CustomerForm({
@@ -26,6 +28,7 @@ export function CustomerForm({
   customer,
   error,
   submitLabel = "Save Customer",
+  cancelHref = "/customers",
 }: CustomerFormProps) {
   return (
     <form action={action} className="space-y-5">
@@ -102,7 +105,12 @@ export function CustomerForm({
           />
         </div>
       </div>
-      <FormSubmitButton label={submitLabel} loadingLabel="Saving..." />
+      <div className="flex flex-wrap gap-3">
+        <FormSubmitButton label={submitLabel} loadingLabel="Saving..." />
+        <LinkButton href={cancelHref} variant="outline">
+          Cancel
+        </LinkButton>
+      </div>
     </form>
   );
 }

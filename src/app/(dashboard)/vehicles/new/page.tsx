@@ -4,7 +4,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { VehicleForm } from "@/components/crud/vehicle-form";
 import { createClient } from "@/lib/supabase/server";
-import { createVehicle } from "@/lib/actions";
+import { createVehicle } from "@/app/(dashboard)/vehicles/actions";
 
 export const metadata = { title: "New Vehicle" };
 

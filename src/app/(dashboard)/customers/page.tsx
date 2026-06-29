@@ -4,6 +4,7 @@ import { Eye, Pencil, Plus, Users } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { LinkButton } from "@/components/ui/link-button";
 import { Badge } from "@/components/ui/badge";
+import { DeleteConfirmButton } from "@/components/ui/delete-confirm-button";
 import {
   Table,
   TableBody,
@@ -15,6 +16,7 @@ import {
 import { EntitySearch } from "@/components/crud/entity-search";
 import { ListEmptyState } from "@/components/crud/list-empty-state";
 import { createClient } from "@/lib/supabase/server";
+import { deleteCustomer } from "@/app/(dashboard)/customers/actions";
 
 export const metadata = { title: "Customers" };
 
@@ -22,6 +24,10 @@ function consentBadge(status: string) {
   if (status === "granted") return "default" as const;
   if (status === "declined") return "destructive" as const;
   return "secondary" as const;
+}
+
+function displayName(name: string | null | undefined) {
+  return name?.trim() ? name : "Unnamed Customer";
 }
 
 export default async function CustomersPage({
@@ -88,7 +94,7 @@ export default async function CustomersPage({
                   {customers.map((customer) => (
                     <TableRow key={customer.id} className="hover:bg-[#F2F8FC]/60">
                       <TableCell className="font-medium text-[#1C3664]">
-                        {customer.name}
+                        {displayName(customer.name)}
                       </TableCell>
                       <TableCell>{customer.phone ?? "—"}</TableCell>
                       <TableCell>{customer.whatsapp_number ?? "—"}</TableCell>
@@ -108,10 +114,20 @@ export default async function CustomersPage({
                             <Eye className="mr-1 h-3.5 w-3.5" />
                             View
                           </LinkButton>
-                          <LinkButton href={`/customers/${customer.id}`} size="sm" variant="outline">
+                          <LinkButton
+                            href={`/customers/${customer.id}/edit`}
+                            size="sm"
+                            variant="outline"
+                          >
                             <Pencil className="mr-1 h-3.5 w-3.5" />
                             Edit
                           </LinkButton>
+                          <DeleteConfirmButton
+                            id={customer.id}
+                            confirmMessage="Are you sure you want to delete this customer?"
+                            deleteAction={deleteCustomer}
+                            redirectTo="/customers"
+                          />
                         </div>
                       </TableCell>
                     </TableRow>
