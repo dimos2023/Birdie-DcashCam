@@ -13,5 +13,9 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  if (!profile.is_active) {
+    redirect("/login?error=deactivated");
+  }
+
   return <AppShell profile={profile}>{children}</AppShell>;
 }

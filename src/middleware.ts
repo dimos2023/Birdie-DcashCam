@@ -8,8 +8,9 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all routes except static files and images.
-     * Protects dashboard routes; allows /login, /auth/callback, /logout, /api/webhooks.
+     * Run on all routes except static assets.
+     * Public: /login, /auth/callback, /api/webhooks, /logout
+     * Protected: dashboard, customers, vehicles, devices, etc.
      */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],

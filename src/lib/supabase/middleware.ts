@@ -3,17 +3,40 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/types";
 import { getPublicSupabaseConfig } from "@/lib/supabase/config";
 
-const PUBLIC_PREFIXES = ["/auth/callback", "/api/webhooks"];
-const AUTH_ROUTES = ["/login"];
+/** Routes accessible without a session */
+export const PUBLIC_ROUTES = ["/login"] as const;
+
+/** Route prefixes accessible without a session */
+export const PUBLIC_PREFIXES = ["/auth/callback", "/api/webhooks"] as const;
+
+/** Dashboard and app routes that require authentication */
+export const PROTECTED_PREFIXES = [
+  "/dashboard",
+  "/customers",
+  "/vehicles",
+  "/devices",
+  "/live-monitoring",
+  "/whatsapp",
+  "/reports",
+  "/settings",
+] as const;
 
 function isPublicRoute(pathname: string): boolean {
+  if (PUBLIC_ROUTES.includes(pathname as (typeof PUBLIC_ROUTES)[number])) {
+    return true;
+  }
   return PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
 function isAuthRoute(pathname: string): boolean {
-  return AUTH_ROUTES.includes(pathname);
+  return pathname === "/login";
 }
 
+/**
+ * Refreshes the Supabase session and enforces route protection.
+ * - Unauthenticated users → /login (with redirectTo preserved)
+ * - Authenticated users on /login → /dashboard
+ */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -47,20 +70,23 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Logout route is always allowed through
   if (pathname === "/logout") {
     return supabaseResponse;
   }
 
-  if (!user && !isAuthRoute(pathname) && !isPublicRoute(pathname)) {
+  if (!user && !isPublicRoute(pathname)) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
+    if (pathname !== "/") {
+      redirectUrl.searchParams.set("redirectTo", pathname);
+    }
     return NextResponse.redirect(redirectUrl);
   }
 
   if (user && isAuthRoute(pathname)) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/dashboard";
+    redirectUrl.search = "";
     return NextResponse.redirect(redirectUrl);
   }
 

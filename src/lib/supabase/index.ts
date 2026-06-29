@@ -1,11 +1,11 @@
 /**
  * Supabase client factories for the Birdie Fleet platform.
  *
- * | Export              | Environment | RLS   | Use in                |
- * |---------------------|-------------|-------|-----------------------|
- * | createClient (client) | Browser   | Yes   | Client Components     |
- * | createClient (server) | Server    | Yes   | Server Actions, RSC   |
- * | createAdminClient     | Server    | No    | Webhooks, system jobs |
+ * | Export                  | Environment | RLS | Use in                    |
+ * |-------------------------|-------------|-----|---------------------------|
+ * | createBrowserClient     | Browser     | Yes | Client Components         |
+ * | createServerClient      | Server      | Yes | RSC, Route Handlers, Actions |
+ * | createAdminClient       | Server      | No  | Webhooks, system jobs     |
  */
 export { createClient as createBrowserClient } from "./client";
 export type { BrowserSupabaseClient } from "./client";
@@ -18,6 +18,7 @@ export type { AdminSupabaseClient } from "./admin";
 
 export {
   getPublicSupabaseConfig,
+  getServiceRoleKey,
   SupabaseConfigError,
   type PublicSupabaseConfig,
 } from "./config";

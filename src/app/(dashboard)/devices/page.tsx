@@ -1,5 +1,6 @@
-import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Suspense } from "react";
+import { format } from "date-fns";
+import { Cpu, Eye, Pencil, Plus } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { LinkButton } from "@/components/ui/link-button";
 import { Badge } from "@/components/ui/badge";
@@ -11,17 +12,37 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { EntitySearch } from "@/components/crud/entity-search";
+import { ListEmptyState } from "@/components/crud/list-empty-state";
 import { createClient } from "@/lib/supabase/server";
-import { format } from "date-fns";
 
 export const metadata = { title: "Devices" };
 
-export default async function DevicesPage() {
+function deviceStatusVariant(status: string) {
+  if (status === "active") return "default" as const;
+  if (status === "maintenance") return "secondary" as const;
+  return "outline" as const;
+}
+
+export default async function DevicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
   const supabase = await createClient();
-  const { data: devices } = await supabase
+
+  let query = supabase
     .from("devices")
     .select("*, device_models(name, type)")
     .order("created_at", { ascending: false });
+
+  if (q?.trim()) {
+    const term = `%${q.trim()}%`;
+    query = query.or(`serial_number.ilike.${term},imei.ilike.${term},sim_number.ilike.${term}`);
+  }
+
+  const { data: devices } = await query;
 
   return (
     <>
@@ -31,60 +52,92 @@ export default async function DevicesPage() {
           Register Device
         </LinkButton>
       </PageHeader>
-      <div className="p-4 md:p-6">
-        <div className="overflow-x-auto rounded-xl border bg-white shadow-sm">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Serial Number</TableHead>
-                <TableHead>Model</TableHead>
-                <TableHead>IMEI</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Seen</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {devices?.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    No devices registered
-                  </TableCell>
-                </TableRow>
-              )}
-              {devices?.map((device) => {
-                const model = (device as { device_models?: { name: string; type: string } }).device_models;
-                return (
-                  <TableRow key={device.id}>
-                    <TableCell className="font-medium text-[#1C3664]">
-                      {device.serial_number}
-                    </TableCell>
-                    <TableCell>
-                      {model ? `${model.name} (${model.type})` : "—"}
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">{device.imei ?? "—"}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          device.status === "active"
-                            ? "default"
-                            : device.status === "maintenance"
-                              ? "secondary"
-                              : "outline"
-                        }
-                      >
-                        {device.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {device.last_seen_at
-                        ? format(new Date(device.last_seen_at), "dd MMM yyyy, HH:mm")
-                        : "Never"}
-                    </TableCell>
+      <div className="space-y-4 p-4 md:p-6">
+        <Suspense fallback={null}>
+          <EntitySearch placeholder="Search by serial, IMEI, SIM..." />
+        </Suspense>
+
+        <div className="overflow-hidden rounded-xl border border-[#e8f2fa] bg-white shadow-sm">
+          {!devices?.length ? (
+            <ListEmptyState
+              icon={Cpu}
+              title={q ? "No devices match your search" : "No devices registered"}
+              description={
+                q
+                  ? "Try a different search term or clear the filter."
+                  : "Register Birdie hardware to assign to vehicles and start tracking."
+              }
+              actionLabel="Register Device"
+              actionHref="/devices/new"
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead>Serial Number</TableHead>
+                    <TableHead>Model</TableHead>
+                    <TableHead>IMEI</TableHead>
+                    <TableHead>SIM</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Activated</TableHead>
+                    <TableHead>Last Seen</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                  {devices.map((device) => {
+                    const model = (device as {
+                      device_models?: { name: string; type: string };
+                    }).device_models;
+                    return (
+                      <TableRow key={device.id} className="hover:bg-[#F2F8FC]/60">
+                        <TableCell className="font-mono font-medium text-[#1C3664]">
+                          {device.serial_number}
+                        </TableCell>
+                        <TableCell>
+                          {model ? `${model.name}` : "—"}
+                        </TableCell>
+                        <TableCell className="font-mono text-sm">{device.imei ?? "—"}</TableCell>
+                        <TableCell>{device.sim_number ?? "—"}</TableCell>
+                        <TableCell>
+                          <Badge variant={deviceStatusVariant(device.status)}>
+                            {device.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {device.activation_date
+                            ? format(new Date(device.activation_date), "dd MMM yyyy")
+                            : "—"}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {device.last_seen_at
+                            ? format(new Date(device.last_seen_at), "dd MMM yyyy, HH:mm")
+                            : "Never"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1">
+                            <LinkButton href={`/devices/${device.id}`} size="sm" variant="ghost">
+                              <Eye className="mr-1 h-3.5 w-3.5" />
+                              View
+                            </LinkButton>
+                            <LinkButton
+                              href={`/devices/${device.id}?mode=edit`}
+                              size="sm"
+                              variant="outline"
+                            >
+                              <Pencil className="mr-1 h-3.5 w-3.5" />
+                              Edit
+                            </LinkButton>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </div>
       </div>
     </>

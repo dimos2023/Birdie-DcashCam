@@ -85,6 +85,8 @@ export interface Database {
           city: string | null;
           country: string | null;
           notes: string | null;
+          whatsapp_number: string | null;
+          consent_status: "pending" | "granted" | "declined";
           is_active: boolean;
           created_at: string;
           updated_at: string;
@@ -100,6 +102,8 @@ export interface Database {
           city?: string | null;
           country?: string | null;
           notes?: string | null;
+          whatsapp_number?: string | null;
+          consent_status?: "pending" | "granted" | "declined";
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -189,6 +193,9 @@ export interface Database {
           firmware_version: string | null;
           status: DeviceStatus;
           last_seen_at: string | null;
+          activation_date: string | null;
+          warranty_start: string | null;
+          warranty_end: string | null;
           metadata: Json;
           created_at: string;
           updated_at: string;
@@ -203,6 +210,9 @@ export interface Database {
           firmware_version?: string | null;
           status?: DeviceStatus;
           last_seen_at?: string | null;
+          activation_date?: string | null;
+          warranty_start?: string | null;
+          warranty_end?: string | null;
           metadata?: Json;
           created_at?: string;
           updated_at?: string;

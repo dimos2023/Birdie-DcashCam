@@ -9,10 +9,9 @@ import { getPublicSupabaseConfig } from "@/lib/supabase/config";
 export type ServerSupabaseClient = SupabaseClient<Database>;
 
 /**
- * Creates a Supabase client for Server Components, Route Handlers, and Server Actions.
- *
- * Reads the auth session from HTTP cookies and forwards cookie updates on sign-in/out.
- * Uses the anon key only — RLS policies apply to every query.
+ * Supabase client for Server Components, Route Handlers, and Server Actions.
+ * Uses cookies from next/headers for session management.
+ * Uses NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.
  */
 export async function createClient(): Promise<ServerSupabaseClient> {
   const cookieStore = await cookies();
@@ -29,7 +28,7 @@ export async function createClient(): Promise<ServerSupabaseClient> {
             cookieStore.set(name, value, options)
           );
         } catch {
-          // Called from a Server Component — cookie writes are handled by middleware.
+          // Server Components cannot set cookies — middleware handles refresh.
         }
       },
     },

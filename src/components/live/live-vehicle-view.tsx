@@ -1,48 +1,39 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { LiveSummaryCards } from "@/components/live/live-summary-cards";
+import { VehicleLiveHeader } from "@/components/live/vehicle-live-header";
 import { LiveMap } from "@/components/live/live-map";
 import { CameraGrid } from "@/components/live/camera-grid";
 import { WhatsappChatBox } from "@/components/live/whatsapp-chat-box";
 import { LocationHistory } from "@/components/live/location-history";
-import type {
-  Vehicle,
-  VehicleLocation,
-  CameraStream,
-  WhatsappConversation,
-  WhatsappMessage,
-} from "@/lib/types";
+import type { Vehicle, VehicleLocation, WhatsappMessage } from "@/lib/types";
 import type { Trip } from "@/lib/live/trips";
 
 type DeviceType = "dash_cam" | "gps_tracker" | "combo" | null;
 
 interface LiveVehicleViewProps {
   vehicle: Vehicle;
-  initialLocation: VehicleLocation | null;
   history: VehicleLocation[];
-  streams: CameraStream[];
-  conversation: WhatsappConversation | null;
+  currentLocation: VehicleLocation | null;
   messages: WhatsappMessage[];
   customerName?: string | null;
   customerPhone?: string | null;
   deviceSerial?: string | null;
   deviceType?: DeviceType;
+  isDemo?: boolean;
 }
 
 export function LiveVehicleView({
   vehicle,
-  initialLocation,
   history,
-  streams,
-  conversation,
+  currentLocation,
   messages,
   customerName,
   customerPhone,
   deviceSerial,
   deviceType,
+  isDemo = false,
 }: LiveVehicleViewProps) {
-  const [liveLocation, setLiveLocation] = useState<VehicleLocation | null>(initialLocation);
   const [playbackLocation, setPlaybackLocation] = useState<VehicleLocation | null>(null);
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
 
@@ -51,72 +42,54 @@ export function LiveVehicleView({
     [selectedTrip, history]
   );
 
-  const handleLocationUpdate = useCallback((location: VehicleLocation) => {
-    setLiveLocation(location);
-    if (!playbackLocation) {
-      setPlaybackLocation(null);
-    }
-  }, [playbackLocation]);
+  const lastUpdate = playbackLocation ?? currentLocation;
+
+  const handleTripSelect = useCallback((trip: Trip | null) => {
+    setSelectedTrip(trip);
+    if (!trip) setPlaybackLocation(null);
+  }, []);
 
   const handleReplayPoint = useCallback((location: VehicleLocation | null) => {
     setPlaybackLocation(location);
   }, []);
 
-  const handleTripSelect = useCallback((trip: Trip | null) => {
-    setSelectedTrip(trip);
-    if (!trip) {
-      setPlaybackLocation(null);
-    }
-  }, []);
-
-  const lastUpdate = playbackLocation ?? liveLocation ?? initialLocation;
-
   return (
     <div className="space-y-6 p-4 md:p-6">
-      <LiveSummaryCards
+      <VehicleLiveHeader
         customerName={customerName}
         plateNumber={vehicle.plate_number}
         deviceSerial={deviceSerial}
         status={vehicle.status}
         lastLocation={lastUpdate}
+        isDemo={isDemo}
       />
 
       <section aria-label="Live map">
         <LiveMap
-          vehicleId={vehicle.id}
-          initialLocation={initialLocation}
+          location={currentLocation}
           route={route}
           playbackLocation={playbackLocation}
-          onLocationUpdate={handleLocationUpdate}
-          className="h-[360px] md:h-[480px]"
+          className="h-[380px] md:h-[500px]"
+          isDemo={isDemo}
         />
       </section>
 
       <section
         aria-label="Cameras and messaging"
-        className="grid gap-6 xl:grid-cols-3"
+        className="grid gap-6 lg:grid-cols-5"
       >
-        <div className="space-y-3 xl:col-span-2">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-semibold text-[#1C3664]">Camera Streams</h3>
-            <span className="text-xs text-muted-foreground">
-              {deviceType === "combo" ? "3 channels" : deviceType === "dash_cam" ? "2 channels" : "Video"}
-            </span>
-          </div>
-          <CameraGrid
-            vehicleId={vehicle.id}
-            streams={streams}
-            deviceType={deviceType}
-          />
+        <div className="space-y-3 lg:col-span-3">
+          <h3 className="text-base font-semibold text-[#1C3664]">Camera Streams</h3>
+          <CameraGrid vehicleId={vehicle.id} deviceType={deviceType ?? "combo"} />
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 lg:col-span-2">
           <h3 className="text-base font-semibold text-[#1C3664]">WhatsApp</h3>
           <WhatsappChatBox
-            conversation={conversation}
             messages={messages}
             customerPhone={customerPhone}
             customerName={customerName}
+            isDemo={isDemo}
           />
         </div>
       </section>
@@ -126,6 +99,7 @@ export function LiveVehicleView({
           history={history}
           onTripSelect={handleTripSelect}
           onReplayPoint={handleReplayPoint}
+          isDemo={isDemo}
         />
       </section>
     </div>

@@ -6,6 +6,14 @@ import { logAuditEvent } from "@/lib/auth/audit";
 import { requireRole } from "@/lib/auth/profile";
 import { getWhatsAppConfig } from "@/lib/env";
 import type { Json } from "@/lib/types";
+import {
+  customerSchema,
+  deviceSchema,
+  vehicleSchema,
+  parseFormData,
+  emptyToNull,
+  dateOrNull,
+} from "@/lib/validations/crud";
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient();
@@ -18,7 +26,13 @@ export async function signIn(formData: FormData) {
     return { error: error.message };
   }
 
-  redirect("/dashboard");
+  const redirectTo = formData.get("redirectTo") as string | null;
+  const destination =
+    redirectTo?.startsWith("/") && !redirectTo.startsWith("//")
+      ? redirectTo
+      : "/dashboard";
+
+  redirect(destination);
 }
 
 export async function signOut() {
@@ -29,20 +43,24 @@ export async function signOut() {
 
 export async function createCustomer(formData: FormData) {
   const profile = await requireRole("operator");
+  const parsed = parseFormData(customerSchema, formData);
+  if (!parsed.success) {
+    redirect(`/customers/new?error=${encodeURIComponent(parsed.error)}`);
+  }
+  const data = parsed.data;
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  const { data: row, error } = await supabase
     .from("customers")
     .insert({
       organization_id: profile.organization_id,
-      name: formData.get("name") as string,
-      contact_name: (formData.get("contact_name") as string) || null,
-      email: (formData.get("email") as string) || null,
-      phone: (formData.get("phone") as string) || null,
-      address: (formData.get("address") as string) || null,
-      city: (formData.get("city") as string) || null,
-      country: (formData.get("country") as string) || "Saudi Arabia",
-      notes: (formData.get("notes") as string) || null,
+      name: data.full_name,
+      phone: emptyToNull(data.phone),
+      whatsapp_number: emptyToNull(data.whatsapp_number),
+      email: emptyToNull(data.email),
+      city: emptyToNull(data.city),
+      consent_status: data.consent_status,
+      notes: emptyToNull(data.notes),
     })
     .select("id")
     .single();
@@ -54,28 +72,31 @@ export async function createCustomer(formData: FormData) {
     userId: profile.id,
     action: "create",
     entityType: "customer",
-    entityId: data.id,
+    entityId: row.id,
   });
 
-  redirect(`/customers/${data.id}`);
+  redirect(`/customers/${row.id}`);
 }
 
 export async function updateCustomer(id: string, formData: FormData) {
   const profile = await requireRole("operator");
+  const parsed = parseFormData(customerSchema, formData);
+  if (!parsed.success) {
+    redirect(`/customers/${id}?error=${encodeURIComponent(parsed.error)}`);
+  }
+  const data = parsed.data;
   const supabase = await createClient();
 
   const { error } = await supabase
     .from("customers")
     .update({
-      name: formData.get("name") as string,
-      contact_name: (formData.get("contact_name") as string) || null,
-      email: (formData.get("email") as string) || null,
-      phone: (formData.get("phone") as string) || null,
-      address: (formData.get("address") as string) || null,
-      city: (formData.get("city") as string) || null,
-      country: (formData.get("country") as string) || "Saudi Arabia",
-      notes: (formData.get("notes") as string) || null,
-      is_active: formData.get("is_active") === "true",
+      name: data.full_name,
+      phone: emptyToNull(data.phone),
+      whatsapp_number: emptyToNull(data.whatsapp_number),
+      email: emptyToNull(data.email),
+      city: emptyToNull(data.city),
+      consent_status: data.consent_status,
+      notes: emptyToNull(data.notes),
     })
     .eq("id", id);
 
@@ -94,24 +115,24 @@ export async function updateCustomer(id: string, formData: FormData) {
 
 export async function createVehicle(formData: FormData) {
   const profile = await requireRole("operator");
+  const parsed = parseFormData(vehicleSchema, formData);
+  if (!parsed.success) {
+    redirect(`/vehicles/new?error=${encodeURIComponent(parsed.error)}`);
+  }
+  const data = parsed.data;
   const supabase = await createClient();
 
-  const customerId = formData.get("customer_id") as string;
-  const yearStr = formData.get("year") as string;
-
-  const { data, error } = await supabase
+  const { data: row, error } = await supabase
     .from("vehicles")
     .insert({
       organization_id: profile.organization_id,
-      customer_id: customerId || null,
-      plate_number: formData.get("plate_number") as string,
-      make: (formData.get("make") as string) || null,
-      model: (formData.get("model") as string) || null,
-      year: yearStr ? parseInt(yearStr, 10) : null,
-      color: (formData.get("color") as string) || null,
-      vin: (formData.get("vin") as string) || null,
-      status: (formData.get("status") as "active" | "inactive" | "maintenance") || "active",
-      notes: (formData.get("notes") as string) || null,
+      customer_id: emptyToNull(data.customer_id),
+      plate_number: data.plate_number,
+      make: emptyToNull(data.brand),
+      model: emptyToNull(data.model),
+      year: typeof data.year === "number" ? data.year : null,
+      color: emptyToNull(data.color),
+      status: data.status,
     })
     .select("id")
     .single();
@@ -123,31 +144,31 @@ export async function createVehicle(formData: FormData) {
     userId: profile.id,
     action: "create",
     entityType: "vehicle",
-    entityId: data.id,
+    entityId: row.id,
   });
 
-  redirect(`/vehicles/${data.id}`);
+  redirect(`/vehicles/${row.id}`);
 }
 
 export async function updateVehicle(id: string, formData: FormData) {
   const profile = await requireRole("operator");
+  const parsed = parseFormData(vehicleSchema, formData);
+  if (!parsed.success) {
+    redirect(`/vehicles/${id}?error=${encodeURIComponent(parsed.error)}`);
+  }
+  const data = parsed.data;
   const supabase = await createClient();
-
-  const customerId = formData.get("customer_id") as string;
-  const yearStr = formData.get("year") as string;
 
   const { error } = await supabase
     .from("vehicles")
     .update({
-      customer_id: customerId || null,
-      plate_number: formData.get("plate_number") as string,
-      make: (formData.get("make") as string) || null,
-      model: (formData.get("model") as string) || null,
-      year: yearStr ? parseInt(yearStr, 10) : null,
-      color: (formData.get("color") as string) || null,
-      vin: (formData.get("vin") as string) || null,
-      status: formData.get("status") as "active" | "inactive" | "maintenance",
-      notes: (formData.get("notes") as string) || null,
+      customer_id: emptyToNull(data.customer_id),
+      plate_number: data.plate_number,
+      make: emptyToNull(data.brand),
+      model: emptyToNull(data.model),
+      year: typeof data.year === "number" ? data.year : null,
+      color: emptyToNull(data.color),
+      status: data.status,
     })
     .eq("id", id);
 
@@ -166,50 +187,76 @@ export async function updateVehicle(id: string, formData: FormData) {
 
 export async function createDevice(formData: FormData) {
   const profile = await requireRole("operator");
+  const parsed = parseFormData(deviceSchema, formData);
+  if (!parsed.success) {
+    redirect(`/devices/new?error=${encodeURIComponent(parsed.error)}`);
+  }
+  const data = parsed.data;
   const supabase = await createClient();
 
-  const modelId = formData.get("device_model_id") as string;
-
-  const { data, error } = await supabase
+  const { data: row, error } = await supabase
     .from("devices")
     .insert({
       organization_id: profile.organization_id,
-      device_model_id: modelId || null,
-      serial_number: formData.get("serial_number") as string,
-      imei: (formData.get("imei") as string) || null,
-      sim_number: (formData.get("sim_number") as string) || null,
-      firmware_version: (formData.get("firmware_version") as string) || null,
-      status:
-        (formData.get("status") as
-          | "active"
-          | "inactive"
-          | "maintenance"
-          | "decommissioned") || "inactive",
+      device_model_id: emptyToNull(data.device_model_id),
+      serial_number: data.serial_number,
+      imei: emptyToNull(data.imei),
+      sim_number: emptyToNull(data.sim_number),
+      status: data.status,
+      activation_date: dateOrNull(data.activation_date),
+      warranty_start: dateOrNull(data.warranty_start),
+      warranty_end: dateOrNull(data.warranty_end),
     })
     .select("id")
     .single();
 
   if (error) throw new Error(error.message);
 
-  const vehicleId = formData.get("vehicle_id") as string;
-  if (vehicleId) {
-    await supabase.from("vehicle_devices").insert({
-      organization_id: profile.organization_id,
-      vehicle_id: vehicleId,
-      device_id: data.id,
-      is_primary: true,
-    });
-  }
-
   await logAuditEvent({
     organizationId: profile.organization_id,
     userId: profile.id,
     action: "create",
     entityType: "device",
-    entityId: data.id,
+    entityId: row.id,
   });
 
-  redirect(`/devices`);
+  redirect(`/devices/${row.id}`);
+}
+
+export async function updateDevice(id: string, formData: FormData) {
+  const profile = await requireRole("operator");
+  const parsed = parseFormData(deviceSchema, formData);
+  if (!parsed.success) {
+    redirect(`/devices/${id}?error=${encodeURIComponent(parsed.error)}`);
+  }
+  const data = parsed.data;
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("devices")
+    .update({
+      device_model_id: emptyToNull(data.device_model_id),
+      serial_number: data.serial_number,
+      imei: emptyToNull(data.imei),
+      sim_number: emptyToNull(data.sim_number),
+      status: data.status,
+      activation_date: dateOrNull(data.activation_date),
+      warranty_start: dateOrNull(data.warranty_start),
+      warranty_end: dateOrNull(data.warranty_end),
+    })
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+
+  await logAuditEvent({
+    organizationId: profile.organization_id,
+    userId: profile.id,
+    action: "update",
+    entityType: "device",
+    entityId: id,
+  });
+
+  redirect(`/devices/${id}`);
 }
 
 export async function assignDeviceToVehicle(deviceId: string, vehicleId: string) {

@@ -1,13 +1,11 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { format } from "date-fns";
+import { ArrowLeft, Pencil } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { LinkButton } from "@/components/ui/link-button";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CustomerForm } from "@/components/crud/customer-form";
 import { createClient } from "@/lib/supabase/server";
 import { updateCustomer } from "@/lib/actions";
 
@@ -15,11 +13,15 @@ export const metadata = { title: "Customer Details" };
 
 export default async function CustomerDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string; mode?: string }>;
 }) {
   const { id } = await params;
+  const { error, mode } = await searchParams;
   const supabase = await createClient();
+
   const { data: customer } = await supabase
     .from("customers")
     .select("*")
@@ -28,65 +30,84 @@ export default async function CustomerDetailPage({
 
   if (!customer) notFound();
 
+  const isEditing = mode === "edit";
   const updateWithId = updateCustomer.bind(null, id);
 
   return (
     <>
-      <PageHeader title={customer.name} description="Customer details and settings">
-        <LinkButton href="/customers" variant="outline">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </LinkButton>
+      <PageHeader title={customer.name} description="Customer profile and contact details">
+        <div className="flex flex-wrap gap-2">
+          <LinkButton href="/customers" variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </LinkButton>
+          {!isEditing && (
+            <LinkButton href={`/customers/${id}?mode=edit`}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit
+            </LinkButton>
+          )}
+        </div>
       </PageHeader>
-      <div className="p-6">
-        <Card className="max-w-2xl border-0 shadow-sm">
-          <CardContent className="pt-6">
-            <form action={updateWithId} className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="name">Company Name *</Label>
-                  <Input id="name" name="name" defaultValue={customer.name} required />
+
+      <div className="grid gap-6 p-4 md:p-6 lg:grid-cols-3">
+        <Card className="border border-[#e8f2fa] shadow-sm lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-[#1C3664]">
+              {isEditing ? "Edit customer" : "Customer information"}
+            </CardTitle>
+            {!isEditing && (
+              <CardDescription>View-only profile. Click Edit to make changes.</CardDescription>
+            )}
+          </CardHeader>
+          <CardContent>
+            {isEditing ? (
+              <CustomerForm
+                action={updateWithId}
+                customer={customer}
+                error={error ? decodeURIComponent(error) : null}
+                submitLabel="Save Changes"
+              />
+            ) : (
+              <dl className="grid gap-4 sm:grid-cols-2">
+                {[
+                  ["Full Name", customer.name],
+                  ["Phone", customer.phone],
+                  ["WhatsApp", customer.whatsapp_number],
+                  ["Email", customer.email],
+                  ["City", customer.city],
+                  ["Consent", customer.consent_status ?? "pending"],
+                  ["Created", format(new Date(customer.created_at), "dd MMM yyyy")],
+                ].map(([label, value]) => (
+                  <div key={label}>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-[#1C1C1C]/45">
+                      {label}
+                    </dt>
+                    <dd className="mt-1 text-sm font-medium text-[#1C3664]">{value ?? "—"}</dd>
+                  </div>
+                ))}
+                <div className="sm:col-span-2">
+                  <dt className="text-xs font-medium uppercase tracking-wide text-[#1C1C1C]/45">
+                    Notes
+                  </dt>
+                  <dd className="mt-1 text-sm text-[#1C1C1C]/70">{customer.notes ?? "—"}</dd>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="contact_name">Contact Name</Label>
-                  <Input id="contact_name" name="contact_name" defaultValue={customer.contact_name ?? ""} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" defaultValue={customer.email ?? ""} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" name="phone" defaultValue={customer.phone ?? ""} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
-                  <Input id="city" name="city" defaultValue={customer.city ?? ""} />
-                </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="address">Address</Label>
-                  <Input id="address" name="address" defaultValue={customer.address ?? ""} />
-                </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="notes">Notes</Label>
-                  <Textarea id="notes" name="notes" rows={3} defaultValue={customer.notes ?? ""} />
-                </div>
-                <div className="flex items-center gap-3 sm:col-span-2">
-                  <input
-                    type="checkbox"
-                    id="is_active"
-                    name="is_active"
-                    value="true"
-                    defaultChecked={customer.is_active}
-                    className="h-4 w-4 rounded border-gray-300"
-                  />
-                  <Label htmlFor="is_active">Active customer</Label>
-                </div>
-              </div>
-              <Button type="submit" className="bg-[#1C3664] hover:bg-[#1C3664]/90">
-                Save Changes
-              </Button>
-            </form>
+              </dl>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border border-[#e8f2fa] shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base text-[#1C3664]">Status</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Badge variant={customer.is_active ? "default" : "secondary"}>
+              {customer.is_active ? "Active" : "Inactive"}
+            </Badge>
+            <p className="text-xs text-muted-foreground">
+              Last updated {format(new Date(customer.updated_at), "dd MMM yyyy, HH:mm")}
+            </p>
           </CardContent>
         </Card>
       </div>

@@ -1,5 +1,6 @@
-import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Suspense } from "react";
+import { format } from "date-fns";
+import { Eye, Pencil, Plus, Users } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { LinkButton } from "@/components/ui/link-button";
 import { Badge } from "@/components/ui/badge";
@@ -11,17 +12,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { EntitySearch } from "@/components/crud/entity-search";
+import { ListEmptyState } from "@/components/crud/list-empty-state";
 import { createClient } from "@/lib/supabase/server";
-import { format } from "date-fns";
 
 export const metadata = { title: "Customers" };
 
-export default async function CustomersPage() {
+function consentBadge(status: string) {
+  if (status === "granted") return "default" as const;
+  if (status === "declined") return "destructive" as const;
+  return "secondary" as const;
+}
+
+export default async function CustomersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
   const supabase = await createClient();
-  const { data: customers } = await supabase
-    .from("customers")
-    .select("*")
-    .order("created_at", { ascending: false });
+
+  let query = supabase.from("customers").select("*").order("created_at", { ascending: false });
+
+  if (q?.trim()) {
+    const term = `%${q.trim()}%`;
+    query = query.or(
+      `name.ilike.${term},phone.ilike.${term},email.ilike.${term},city.ilike.${term},whatsapp_number.ilike.${term}`
+    );
+  }
+
+  const { data: customers } = await query;
 
   return (
     <>
@@ -31,49 +51,75 @@ export default async function CustomersPage() {
           Add Customer
         </LinkButton>
       </PageHeader>
-      <div className="p-4 md:p-6">
-        <div className="overflow-x-auto rounded-xl border bg-white shadow-sm">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>City</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {customers?.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
-                    No customers found
-                  </TableCell>
-                </TableRow>
-              )}
-              {customers?.map((customer) => (
-                <TableRow key={customer.id} className="cursor-pointer hover:bg-[#F2F8FC]">
-                  <TableCell>
-                    <Link href={`/customers/${customer.id}`} className="font-medium text-[#1C3664]">
-                      {customer.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell>{customer.contact_name ?? "—"}</TableCell>
-                  <TableCell>{customer.phone ?? "—"}</TableCell>
-                  <TableCell>{customer.city ?? "—"}</TableCell>
-                  <TableCell>
-                    <Badge variant={customer.is_active ? "default" : "secondary"}>
-                      {customer.is_active ? "Active" : "Inactive"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {format(new Date(customer.created_at), "dd MMM yyyy")}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+      <div className="space-y-4 p-4 md:p-6">
+        <Suspense fallback={null}>
+          <EntitySearch placeholder="Search by name, phone, email, city..." />
+        </Suspense>
+
+        <div className="overflow-hidden rounded-xl border border-[#e8f2fa] bg-white shadow-sm">
+          {!customers?.length ? (
+            <ListEmptyState
+              icon={Users}
+              title={q ? "No customers match your search" : "No customers yet"}
+              description={
+                q
+                  ? "Try a different search term or clear the filter."
+                  : "Add your first customer to start assigning vehicles and devices."
+              }
+              actionLabel="Add Customer"
+              actionHref="/customers/new"
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead>Name</TableHead>
+                    <TableHead>Phone</TableHead>
+                    <TableHead>WhatsApp</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>City</TableHead>
+                    <TableHead>Consent</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {customers.map((customer) => (
+                    <TableRow key={customer.id} className="hover:bg-[#F2F8FC]/60">
+                      <TableCell className="font-medium text-[#1C3664]">
+                        {customer.name}
+                      </TableCell>
+                      <TableCell>{customer.phone ?? "—"}</TableCell>
+                      <TableCell>{customer.whatsapp_number ?? "—"}</TableCell>
+                      <TableCell>{customer.email ?? "—"}</TableCell>
+                      <TableCell>{customer.city ?? "—"}</TableCell>
+                      <TableCell>
+                        <Badge variant={consentBadge(customer.consent_status ?? "pending")}>
+                          {customer.consent_status ?? "pending"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {format(new Date(customer.created_at), "dd MMM yyyy")}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <LinkButton href={`/customers/${customer.id}`} size="sm" variant="ghost">
+                            <Eye className="mr-1 h-3.5 w-3.5" />
+                            View
+                          </LinkButton>
+                          <LinkButton href={`/customers/${customer.id}`} size="sm" variant="outline">
+                            <Pencil className="mr-1 h-3.5 w-3.5" />
+                            Edit
+                          </LinkButton>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </div>
       </div>
     </>

@@ -3,21 +3,20 @@ import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/types";
-import { getPublicSupabaseConfig } from "@/lib/supabase/config";
-import { getServiceRoleKey } from "@/lib/supabase/env.server";
+import { getPublicSupabaseConfig, getServiceRoleKey } from "@/lib/supabase/config";
 
 export type AdminSupabaseClient = SupabaseClient<Database>;
 
 /**
- * Creates a Supabase admin client that bypasses Row Level Security.
+ * Supabase admin client — bypasses Row Level Security.
  *
  * SECURITY:
- * - This module is server-only (`import "server-only"`).
- * - Never import `createAdminClient` in Client Components or any file with `"use client"`.
+ * - Server-only (`import "server-only"`).
+ * - Never import in Client Components or `"use client"` modules.
  * - Never expose SUPABASE_SERVICE_ROLE_KEY to the browser.
  *
- * Use only for trusted server-side operations (webhooks, background jobs, migrations).
- * For user-facing operations, use `createClient` from `./server` instead.
+ * Use for trusted server operations (webhooks, background jobs).
+ * For user-facing requests, use `createClient` from `./server`.
  */
 export function createAdminClient(): AdminSupabaseClient {
   const { url } = getPublicSupabaseConfig();

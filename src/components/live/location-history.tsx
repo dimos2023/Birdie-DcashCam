@@ -21,12 +21,14 @@ interface LocationHistoryProps {
   history: VehicleLocation[];
   onTripSelect?: (trip: Trip | null) => void;
   onReplayPoint?: (location: VehicleLocation | null) => void;
+  isDemo?: boolean;
 }
 
 export function LocationHistory({
   history,
   onTripSelect,
   onReplayPoint,
+  isDemo = false,
 }: LocationHistoryProps) {
   const today = format(new Date(), "yyyy-MM-dd");
   const weekAgo = format(subDays(new Date(), 7), "yyyy-MM-dd");
@@ -42,7 +44,6 @@ export function LocationHistory({
   );
 
   const trips = useMemo(() => groupLocationsIntoTrips(filtered), [filtered]);
-
   const selectedTrip = trips.find((t) => t.id === selectedTripId) ?? null;
   const replayPoints = selectedTrip?.points ?? filtered;
 
@@ -70,10 +71,10 @@ export function LocationHistory({
 
   if (history.length === 0) {
     return (
-      <div className="rounded-xl border bg-white p-8 text-center shadow-sm">
-        <Route className="mx-auto h-10 w-10 text-muted-foreground" />
-        <p className="mt-3 font-medium text-[#1C3664]">No location history</p>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <div className="rounded-2xl border border-[#e8f2fa] bg-white p-10 text-center shadow-sm">
+        <Route className="mx-auto h-10 w-10 text-[#3B8ECC]" />
+        <p className="mt-3 font-semibold text-[#1C3664]">No location history</p>
+        <p className="mt-1 text-sm text-[#1C1C1C]/55">
           GPS data will appear here once the device reports its position.
         </p>
       </div>
@@ -81,11 +82,18 @@ export function LocationHistory({
   }
 
   return (
-    <div className="rounded-xl border bg-white shadow-sm">
-      <div className="flex flex-col gap-4 border-b p-4 md:flex-row md:items-end md:justify-between">
+    <div className="rounded-2xl border border-[#e8f2fa] bg-white shadow-sm">
+      <div className="flex flex-col gap-4 border-b border-[#e8f2fa] p-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h3 className="font-semibold text-[#1C3664]">Location History</h3>
-          <p className="text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="font-semibold text-[#1C3664]">Location History</h3>
+            {isDemo && (
+              <Badge variant="outline" className="border-[#3B8ECC]/30 text-[#3B8ECC]">
+                Demo data
+              </Badge>
+            )}
+          </div>
+          <p className="text-sm text-[#1C1C1C]/55">
             {filtered.length} points · {trips.length} trip{trips.length !== 1 ? "s" : ""}
           </p>
         </div>
@@ -103,7 +111,7 @@ export function LocationHistory({
                 setSelectedTripId(null);
                 onTripSelect?.(null);
               }}
-              className="h-9 w-[140px]"
+              className="h-9 w-[140px] border-[#d4e4f0]"
             />
           </div>
           <div className="space-y-1">
@@ -119,7 +127,7 @@ export function LocationHistory({
                 setSelectedTripId(null);
                 onTripSelect?.(null);
               }}
-              className="h-9 w-[140px]"
+              className="h-9 w-[140px] border-[#d4e4f0]"
             />
           </div>
           <Button variant="outline" size="sm" onClick={handleReplay} className="h-9">
@@ -133,10 +141,10 @@ export function LocationHistory({
         </div>
       </div>
 
-      <ScrollArea className="max-h-[320px]">
-        <div className="divide-y">
+      <ScrollArea className="max-h-[340px]">
+        <div className="divide-y divide-[#e8f2fa]">
           {trips.length === 0 && (
-            <p className="p-6 text-center text-sm text-muted-foreground">
+            <p className="p-6 text-center text-sm text-[#1C1C1C]/55">
               No trips in the selected date range.
             </p>
           )}
@@ -155,7 +163,7 @@ export function LocationHistory({
                 <div
                   className={cn(
                     "mt-0.5 rounded-lg p-2",
-                    isSelected ? "bg-[#3B8ECC] text-white" : "bg-[#1C3664]/10 text-[#1C3664]"
+                    isSelected ? "bg-[#3B8ECC] text-white" : "bg-[#1C3664]/8 text-[#1C3664]"
                   )}
                 >
                   <MapPin className="h-4 w-4" />
@@ -174,11 +182,11 @@ export function LocationHistory({
                       </Badge>
                     )}
                   </div>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
+                  <p className="mt-0.5 text-xs text-[#1C1C1C]/50">
                     {format(new Date(trip.startAt), "HH:mm")} –{" "}
                     {format(new Date(trip.endAt), "HH:mm")}
                   </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="mt-1 text-xs text-[#1C1C1C]/50">
                     {trip.distanceKm.toFixed(1)} km · max {Math.round(trip.maxSpeedKmh)} km/h
                   </p>
                 </div>
@@ -204,8 +212,8 @@ export function LocationHistory({
       </ScrollArea>
 
       {selectedTrip && replayPoints.length > 1 && (
-        <div className="border-t p-4">
-          <p className="mb-2 text-xs font-medium text-muted-foreground">Trip scrubber</p>
+        <div className="border-t border-[#e8f2fa] p-4">
+          <p className="mb-2 text-xs font-medium text-[#1C1C1C]/45">Trip scrubber</p>
           <input
             type="range"
             min={0}
@@ -219,7 +227,7 @@ export function LocationHistory({
             className="w-full accent-[#3B8ECC]"
             aria-label="Trip playback position"
           />
-          <div className="mt-1 flex justify-between text-xs text-muted-foreground">
+          <div className="mt-1 flex justify-between text-xs text-[#1C1C1C]/45">
             <span>{format(new Date(replayPoints[0].recorded_at), "HH:mm")}</span>
             <span>
               {replayIndex + 1} / {replayPoints.length}

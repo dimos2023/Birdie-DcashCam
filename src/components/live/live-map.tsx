@@ -1,211 +1,79 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Loader2, Radio } from "lucide-react";
+import { useMemo } from "react";
+import { MapPin, Navigation, Radio } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useVehicleLocation } from "@/hooks/use-vehicle-location";
 import type { VehicleLocation } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { getClientGoogleMapsApiKey } from "@/lib/env.client";
 
 interface LiveMapProps {
-  vehicleId: string;
-  initialLocation?: VehicleLocation | null;
+  location: VehicleLocation | null;
   route?: VehicleLocation[];
   playbackLocation?: VehicleLocation | null;
   className?: string;
-  onLocationUpdate?: (location: VehicleLocation) => void;
+  isDemo?: boolean;
 }
 
-declare global {
-  interface Window {
-    google?: typeof google;
-    initBirdieMap?: () => void;
-  }
+/** Normalizes lat/lng to 0–100 SVG viewBox coordinates for demo map. */
+function projectPoints(
+  points: VehicleLocation[],
+  padding = 8
+): Array<{ x: number; y: number }> {
+  if (points.length === 0) return [];
+
+  const lats = points.map((p) => p.latitude);
+  const lngs = points.map((p) => p.longitude);
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLng = Math.min(...lngs);
+  const maxLng = Math.max(...lngs);
+
+  const latSpan = maxLat - minLat || 0.01;
+  const lngSpan = maxLng - minLng || 0.01;
+  const inner = 100 - padding * 2;
+
+  return points.map((p) => ({
+    x: padding + ((p.longitude - minLng) / lngSpan) * inner,
+    y: padding + (1 - (p.latitude - minLat) / latSpan) * inner,
+  }));
 }
 
 export function LiveMap({
-  vehicleId,
-  initialLocation = null,
+  location,
   route = [],
   playbackLocation = null,
   className,
-  onLocationUpdate,
+  isDemo = false,
 }: LiveMapProps) {
-  const liveLocation = useVehicleLocation(vehicleId, initialLocation);
-  const location = playbackLocation ?? liveLocation;
-  const isLive = !playbackLocation && !!liveLocation;
+  const activeLocation = playbackLocation ?? location;
+  const isReplay = !!playbackLocation;
+  const isLive = !playbackLocation && !!location;
 
-  const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstance = useRef<google.maps.Map | null>(null);
-  const markerRef = useRef<google.maps.Marker | null>(null);
-  const polylineRef = useRef<google.maps.Polyline | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const routePoints = route.length > 0 ? route : location ? [location] : [];
+  const projected = useMemo(() => projectPoints(routePoints), [routePoints]);
+  const markerProjected = useMemo(() => {
+    if (!activeLocation) return null;
+    const pts = projectPoints(routePoints.length > 0 ? routePoints : [activeLocation]);
+    return pts[pts.length - 1] ?? projectPoints([activeLocation])[0];
+  }, [activeLocation, routePoints]);
 
-  const apiKey = getClientGoogleMapsApiKey();
-
-  useEffect(() => {
-    if (liveLocation) {
-      onLocationUpdate?.(liveLocation);
-    }
-  }, [liveLocation, onLocationUpdate]);
-
-  useEffect(() => {
-    if (!apiKey) {
-      setError("Google Maps API key not configured");
-      setLoading(false);
-      return;
-    }
-
-    const initMap = () => {
-      if (!mapRef.current || !window.google) return;
-
-      const defaultCenter = { lat: 24.7136, lng: 46.6753 };
-      const center = location
-        ? { lat: location.latitude, lng: location.longitude }
-        : defaultCenter;
-
-      if (!mapInstance.current) {
-        mapInstance.current = new window.google.maps.Map(mapRef.current, {
-          center,
-          zoom: location ? 15 : 6,
-          mapTypeControl: false,
-          streetViewControl: false,
-          fullscreenControl: true,
-          styles: [
-            { elementType: "geometry", stylers: [{ color: "#F2F8FC" }] },
-            { elementType: "labels.text.fill", stylers: [{ color: "#1C3664" }] },
-            { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
-            { featureType: "water", elementType: "geometry", stylers: [{ color: "#3B8ECC" }] },
-          ],
-        });
-      }
-
-      setLoading(false);
-    };
-
-    if (window.google?.maps) {
-      initMap();
-      return;
-    }
-
-    const scriptId = "google-maps-script";
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement("script");
-      script.id = scriptId;
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initBirdieMap`;
-      script.async = true;
-      script.defer = true;
-      window.initBirdieMap = initMap;
-      script.onerror = () => {
-        setError("Failed to load Google Maps");
-        setLoading(false);
-      };
-      document.head.appendChild(script);
-    } else if (window.google?.maps) {
-      initMap();
-    } else {
-      window.initBirdieMap = initMap;
-    }
-
-    return () => {
-      delete window.initBirdieMap;
-    };
-  }, [apiKey, location]);
-
-  useEffect(() => {
-    if (!mapInstance.current || !window.google) return;
-
-    if (location) {
-      const pos = { lat: location.latitude, lng: location.longitude };
-
-      if (!markerRef.current) {
-        markerRef.current = new window.google.maps.Marker({
-          position: pos,
-          map: mapInstance.current,
-          title: "Vehicle",
-          icon: {
-            path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-            scale: 6,
-            fillColor: "#1C3664",
-            fillOpacity: 1,
-            strokeColor: "#3B8ECC",
-            strokeWeight: 2,
-            rotation: location.heading ?? 0,
-          },
-        });
-      } else {
-        markerRef.current.setPosition(pos);
-        const icon = markerRef.current.getIcon() as google.maps.Symbol;
-        if (icon) {
-          icon.rotation = location.heading ?? 0;
-          markerRef.current.setIcon(icon);
-        }
-      }
-
-      if (!playbackLocation) {
-        mapInstance.current.panTo(pos);
-      }
-    }
-
-    if (route.length > 1) {
-      const path = route.map((h) => ({ lat: h.latitude, lng: h.longitude }));
-
-      if (polylineRef.current) {
-        polylineRef.current.setPath(path);
-      } else {
-        polylineRef.current = new window.google.maps.Polyline({
-          path,
-          geodesic: true,
-          strokeColor: "#3B8ECC",
-          strokeOpacity: 0.85,
-          strokeWeight: 4,
-          map: mapInstance.current,
-        });
-      }
-
-      if (playbackLocation && route.length > 0) {
-        const bounds = new window.google.maps.LatLngBounds();
-        path.forEach((p) => bounds.extend(p));
-        mapInstance.current.fitBounds(bounds, 48);
-      }
-    } else if (polylineRef.current) {
-      polylineRef.current.setMap(null);
-      polylineRef.current = null;
-    }
-  }, [location, route, playbackLocation]);
-
-  if (error) {
-    return (
-      <div
-        className={cn(
-          "flex items-center justify-center rounded-xl border bg-white shadow-sm",
-          className
-        )}
-      >
-        <div className="p-6 text-center">
-          <p className="text-sm font-medium text-[#1C3664]">Map unavailable</p>
-          <p className="mt-1 text-xs text-muted-foreground">{error}</p>
-          {location && (
-            <p className="mt-3 font-mono text-xs">
-              {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
-            </p>
-          )}
-        </div>
-      </div>
-    );
-  }
+  const polylinePoints = projected.map((p) => `${p.x},${p.y}`).join(" ");
 
   return (
-    <div className={cn("relative overflow-hidden rounded-xl border bg-white shadow-sm", className)}>
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-2xl border border-[#e8f2fa] bg-white shadow-md",
+        className
+      )}
+    >
+      {/* Map chrome */}
+      <div className="absolute top-4 left-4 z-10 flex flex-wrap items-center gap-2">
         <Badge
           className={cn(
             "shadow-sm",
             isLive
               ? "bg-red-500 text-white hover:bg-red-500"
-              : playbackLocation
+              : isReplay
                 ? "bg-[#3B8ECC] text-white hover:bg-[#3B8ECC]"
                 : "bg-gray-500 text-white hover:bg-gray-500"
           )}
@@ -215,25 +83,100 @@ export function LiveMap({
               <Radio className="mr-1 h-3 w-3 animate-pulse" />
               LIVE
             </>
-          ) : playbackLocation ? (
+          ) : isReplay ? (
             "REPLAY"
           ) : (
             "OFFLINE"
           )}
         </Badge>
-        {location && (
+        {activeLocation && (
           <Badge variant="outline" className="border-white/60 bg-white/90 text-[#1C3664]">
-            {Math.round(location.speed_kmh ?? 0)} km/h
+            {Math.round(activeLocation.speed_kmh ?? 0)} km/h
+          </Badge>
+        )}
+        {isDemo && (
+          <Badge variant="outline" className="border-[#3B8ECC]/30 bg-white/90 text-[#3B8ECC]">
+            Placeholder GPS
           </Badge>
         )}
       </div>
 
-      {loading && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#F2F8FC]">
-          <Loader2 className="h-8 w-8 animate-spin text-[#3B8ECC]" />
+      <div className="absolute top-4 right-4 z-10 rounded-lg bg-white/90 px-3 py-2 text-xs shadow-sm backdrop-blur-sm">
+        <div className="flex items-center gap-1.5 font-medium text-[#1C3664]">
+          <Navigation className="h-3.5 w-3.5 text-[#3B8ECC]" />
+          Birdie Maps
         </div>
-      )}
-      <div ref={mapRef} className="h-full min-h-[360px] w-full md:min-h-[480px]" />
+        {activeLocation && (
+          <p className="mt-1 font-mono text-[10px] text-[#1C1C1C]/55">
+            {activeLocation.latitude.toFixed(5)}, {activeLocation.longitude.toFixed(5)}
+          </p>
+        )}
+      </div>
+
+      {/* Map canvas */}
+      <div className="relative h-full min-h-[380px] w-full bg-[#F2F8FC] md:min-h-[480px]">
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{
+            backgroundImage:
+              "linear-gradient(#d4e4f0 1px, transparent 1px), linear-gradient(90deg, #d4e4f0 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#3B8ECC]/5 via-transparent to-[#1C3664]/5" />
+
+        <svg
+          viewBox="0 0 100 100"
+          className="absolute inset-0 h-full w-full"
+          preserveAspectRatio="none"
+          aria-hidden
+        >
+          {projected.length > 1 && (
+            <polyline
+              points={polylinePoints}
+              fill="none"
+              stroke="#3B8ECC"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeOpacity="0.85"
+            />
+          )}
+          {projected.length > 1 && (
+            <polyline
+              points={polylinePoints}
+              fill="none"
+              stroke="#1C3664"
+              strokeWidth="0.4"
+              strokeDasharray="2 2"
+              strokeOpacity="0.3"
+            />
+          )}
+        </svg>
+
+        {markerProjected && (
+          <div
+            className="absolute z-10 -translate-x-1/2 -translate-y-1/2 transition-all duration-500"
+            style={{
+              left: `${markerProjected.x}%`,
+              top: `${markerProjected.y}%`,
+            }}
+          >
+            <div className="relative">
+              <span className="absolute inline-flex h-10 w-10 animate-ping rounded-full bg-[#3B8ECC]/30" />
+              <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#1C3664] shadow-lg ring-4 ring-white">
+                <MapPin className="h-5 w-5 text-white" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!activeLocation && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <p className="text-sm text-[#1C1C1C]/45">No GPS signal available</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
