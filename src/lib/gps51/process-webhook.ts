@@ -1,9 +1,7 @@
 import "server-only";
 
-import type { Json } from "@/lib/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
-  fieldsToLogSummary,
   hasAnyParsedFields,
   parseGps51LocationRecords,
   parseGps51PayloadFields,
@@ -20,8 +18,7 @@ type Gps51DeviceMapping = {
   is_active: boolean;
 };
 
-export type Gps51WebhookProcessResult = {
-  logId: string | null;
+export type Gps51TelemetryResult = {
   status: string;
   errorMessage: string | null;
   locationsInserted: number;
@@ -163,14 +160,9 @@ async function processLocationFields(
   return { inserted: true };
 }
 
-export async function processGps51Webhook(
-  headers: Record<string, string>,
-  payload: unknown
-): Promise<Gps51WebhookProcessResult> {
-  const supabase = createAdminClient();
+export async function processGps51Telemetry(payload: unknown): Promise<Gps51TelemetryResult> {
   const summaryFields = parseGps51PayloadFields(payload);
   const locationRecords = parseGps51LocationRecords(payload);
-  const logSummary = fieldsToLogSummary(summaryFields);
 
   let status = hasAnyParsedFields(summaryFields) ? "parsed" : "received";
   let errorMessage: string | null = null;
@@ -206,25 +198,7 @@ export async function processGps51Webhook(
     errorMessage = warnings.join("; ");
   }
 
-  const { data: logRow, error: logError } = await supabase
-    .from("gps51_webhook_logs")
-    .insert({
-      headers: headers as Json,
-      payload: (payload ?? {}) as Json,
-      ...logSummary,
-      status,
-      error_message: errorMessage,
-    })
-    .select("id")
-    .single();
-
-  if (logError) {
-    console.error("GPS51 webhook log insert failed:", logError);
-    throw new Error(logError.message);
-  }
-
   return {
-    logId: logRow?.id ?? null,
     status,
     errorMessage,
     locationsInserted,
