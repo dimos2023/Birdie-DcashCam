@@ -156,6 +156,7 @@ export default async function DatabaseCheckPage() {
           rows={devicesRes.data as Record<string, unknown>[] | null}
           columns={[
             "id",
+            "customer_id",
             "serial_number",
             "imei",
             "sim_number",

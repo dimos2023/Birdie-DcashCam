@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DeviceForm } from "@/components/crud/device-form";
 import { createClient } from "@/lib/supabase/server";
 import { createDevice } from "@/app/(dashboard)/devices/actions";
+import { DEFAULT_ORGANIZATION_ID } from "@/lib/constants/organization";
 
 export const metadata = { title: "Register Device" };
 
@@ -17,14 +18,34 @@ export default async function NewDevicePage({
   const { error } = await searchParams;
   const supabase = await createClient();
 
-  const { data: models, error: modelsError } = await supabase
-    .from("device_models")
-    .select("id, name, category")
-    .order("name");
+  const [modelsRes, customersRes, vehiclesRes] = await Promise.all([
+    supabase.from("device_models").select("id, name, category").order("name"),
+    supabase
+      .from("customers")
+      .select("id, full_name, phone, whatsapp_number")
+      .eq("organization_id", DEFAULT_ORGANIZATION_ID)
+      .order("full_name"),
+    supabase
+      .from("vehicles")
+      .select("id, customer_id, plate_number, brand, customers(full_name)")
+      .eq("organization_id", DEFAULT_ORGANIZATION_ID)
+      .order("plate_number"),
+  ]);
 
-  if (modelsError) {
-    console.error("Load device models failed:", modelsError);
-  }
+  if (modelsRes.error) console.error("Load device models failed:", modelsRes.error);
+  if (customersRes.error) console.error("Load customers failed:", customersRes.error);
+  if (vehiclesRes.error) console.error("Load vehicles failed:", vehiclesRes.error);
+
+  const vehicles = (vehiclesRes.data ?? []).map((vehicle) => {
+    const customer = vehicle.customers as { full_name: string } | null;
+    return {
+      id: vehicle.id,
+      customer_id: vehicle.customer_id,
+      plate_number: vehicle.plate_number,
+      brand: vehicle.brand,
+      customer_name: customer?.full_name ?? "Unnamed Customer",
+    };
+  });
 
   return (
     <>
@@ -39,21 +60,38 @@ export default async function NewDevicePage({
           <CardHeader>
             <CardTitle className="text-[#1C3664]">Device registration</CardTitle>
             <CardDescription>
-              Enter hardware details, warranty dates, and activation information.
+              Assign the device to a customer, optionally link a vehicle, and enter hardware
+              details.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {modelsError && (
+            {modelsRes.error && (
               <Alert variant="destructive">
                 <AlertDescription>
-                  Could not load device models: {modelsError.message}. You can still save a device
-                  without selecting a model.
+                  Could not load device models: {modelsRes.error.message}. You can still save a
+                  device without selecting a model.
+                </AlertDescription>
+              </Alert>
+            )}
+            {customersRes.error && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  Could not load customers: {customersRes.error.message}
+                </AlertDescription>
+              </Alert>
+            )}
+            {vehiclesRes.error && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  Could not load vehicles: {vehiclesRes.error.message}
                 </AlertDescription>
               </Alert>
             )}
             <DeviceForm
               action={createDevice}
-              models={models ?? []}
+              models={modelsRes.data ?? []}
+              customers={customersRes.data ?? []}
+              vehicles={vehicles}
               error={error ? decodeURIComponent(error) : null}
               submitLabel="Create Device"
             />

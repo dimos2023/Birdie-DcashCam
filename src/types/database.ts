@@ -170,6 +170,7 @@ export interface Database {
         Row: {
           id: string;
           organization_id: string;
+          customer_id: string | null;
           device_model_id: string | null;
           serial_number: string;
           imei: string | null;
@@ -183,6 +184,7 @@ export interface Database {
         Insert: {
           id?: string;
           organization_id: string;
+          customer_id?: string | null;
           device_model_id?: string | null;
           serial_number: string;
           imei?: string | null;
@@ -195,6 +197,13 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["devices"]["Insert"]>;
         Relationships: [
+          {
+            foreignKeyName: "devices_customer_id_fkey";
+            columns: ["customer_id"];
+            isOneToOne: false;
+            referencedRelation: "customers";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "devices_device_model_id_fkey";
             columns: ["device_model_id"];

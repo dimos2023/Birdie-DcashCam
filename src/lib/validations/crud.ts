@@ -27,6 +27,8 @@ export const vehicleSchema = z.object({
 });
 
 export const deviceSchema = z.object({
+  customer_id: z.string().min(1, "Customer is required"),
+  vehicle_id: z.string().optional(),
   device_model_id: z.string().optional(),
   serial_number: z.string().min(1, "Serial number is required"),
   imei: z.string().optional(),

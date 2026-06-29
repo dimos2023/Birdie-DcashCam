@@ -20,10 +20,14 @@ export default async function DeviceDetailPage({
   const supabase = await createClient();
 
   const [{ data: device }, { data: assignment }] = await Promise.all([
-    supabase.from("devices").select("*, device_models(name, category)").eq("id", id).single(),
+    supabase
+      .from("devices")
+      .select("*, device_models(name, category), customers(full_name, phone, whatsapp_number)")
+      .eq("id", id)
+      .single(),
     supabase
       .from("vehicle_devices")
-      .select("*, vehicles(plate_number)")
+      .select("*, vehicles(plate_number, brand, model)")
       .eq("device_id", id)
       .eq("is_active", true)
       .maybeSingle(),
@@ -32,11 +36,20 @@ export default async function DeviceDetailPage({
   if (!device) notFound();
 
   const model = (device as { device_models?: { name: string; category: string } }).device_models;
-  const vehicle = (assignment as { vehicles?: { plate_number: string } } | null)?.vehicles;
+  const customer = (
+    device as {
+      customers?: { full_name: string; phone: string | null; whatsapp_number: string | null };
+    }
+  ).customers;
+  const vehicle = (
+    assignment as { vehicles?: { plate_number: string; brand: string | null; model: string | null } } | null
+  )?.vehicles;
+
+  const customerName = customer?.full_name?.trim() || "Unnamed Customer";
 
   return (
     <>
-      <PageHeader title={device.serial_number} description="Device hardware and warranty details">
+      <PageHeader title={device.serial_number} description="Device ownership, assignment, and hardware">
         <div className="flex flex-wrap gap-2">
           <LinkButton href="/devices" variant="outline">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -59,7 +72,7 @@ export default async function DeviceDetailPage({
         <Card className="border border-[#e8f2fa] shadow-sm lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-[#1C3664]">Device information</CardTitle>
-            <CardDescription>View device hardware, status, and warranty details.</CardDescription>
+            <CardDescription>Hardware, status, and warranty details.</CardDescription>
           </CardHeader>
           <CardContent>
             <dl className="grid gap-4 sm:grid-cols-2">
@@ -102,20 +115,33 @@ export default async function DeviceDetailPage({
 
         <Card className="border border-[#e8f2fa] shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base text-[#1C3664]">Assignment</CardTitle>
+            <CardTitle className="text-base text-[#1C3664]">Ownership & assignment</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {vehicle ? (
-              <>
-                <p className="text-sm text-muted-foreground">Assigned to vehicle</p>
-                <Badge className="text-sm">{vehicle.plate_number}</Badge>
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">Not assigned to any vehicle.</p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              Registered {format(new Date(device.created_at), "dd MMM yyyy")}
-            </p>
+          <CardContent className="space-y-4">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-[#1C1C1C]/45">
+                Customer
+              </p>
+              <p className="mt-1 text-sm font-medium text-[#1C3664]">{customerName}</p>
+              {customer?.phone && (
+                <p className="mt-1 text-sm text-muted-foreground">Phone: {customer.phone}</p>
+              )}
+              {customer?.whatsapp_number && (
+                <p className="text-sm text-muted-foreground">
+                  WhatsApp: {customer.whatsapp_number}
+                </p>
+              )}
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-[#1C1C1C]/45">
+                Assigned vehicle
+              </p>
+              {vehicle ? (
+                <Badge className="mt-1 text-sm">{vehicle.plate_number}</Badge>
+              ) : (
+                <p className="mt-1 text-sm text-muted-foreground">Not assigned to any vehicle.</p>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

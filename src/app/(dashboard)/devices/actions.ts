@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getActionContext } from "@/lib/actions/context";
+import { syncDeviceVehicleAssignment } from "@/lib/actions/device-assignment";
 import { logAuditEvent } from "@/lib/auth/audit";
 import {
   deviceSchema,
@@ -12,6 +13,33 @@ import {
   dateOrNull,
 } from "@/lib/validations/crud";
 import type { DeleteResult } from "@/lib/actions/types";
+
+async function validateVehicleForCustomer(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  vehicleId: string,
+  customerId: string
+): Promise<string | null> {
+  const { data: vehicle, error } = await supabase
+    .from("vehicles")
+    .select("customer_id")
+    .eq("id", vehicleId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Validate vehicle for customer failed:", error);
+    return error.message;
+  }
+
+  if (!vehicle) {
+    return "Selected vehicle was not found";
+  }
+
+  if (vehicle.customer_id !== customerId) {
+    return "Selected vehicle does not belong to the chosen customer";
+  }
+
+  return null;
+}
 
 export async function createDevice(formData: FormData) {
   const ctx = await getActionContext();
@@ -22,10 +50,23 @@ export async function createDevice(formData: FormData) {
   }
 
   const data = parsed.data;
+  const vehicleId = emptyToNull(data.vehicle_id);
   const supabase = await createClient();
+
+  if (vehicleId) {
+    const vehicleError = await validateVehicleForCustomer(
+      supabase,
+      vehicleId,
+      data.customer_id
+    );
+    if (vehicleError) {
+      redirect(`/devices/new?error=${encodeURIComponent(vehicleError)}`);
+    }
+  }
 
   const payload = {
     organization_id: ctx.organizationId,
+    customer_id: data.customer_id,
     device_model_id: emptyToNull(data.device_model_id),
     serial_number: data.serial_number,
     imei: emptyToNull(data.imei),
@@ -54,6 +95,18 @@ export async function createDevice(formData: FormData) {
     );
   }
 
+  if (vehicleId) {
+    const assignmentResult = await syncDeviceVehicleAssignment(
+      supabase,
+      row.id,
+      vehicleId,
+      data.status
+    );
+    if (assignmentResult.error) {
+      redirect(`/devices/new?error=${encodeURIComponent(assignmentResult.error)}`);
+    }
+  }
+
   await logAuditEvent({
     organizationId: ctx.organizationId,
     userId: ctx.userId ?? undefined,
@@ -75,11 +128,24 @@ export async function updateDevice(id: string, formData: FormData) {
   }
 
   const data = parsed.data;
+  const vehicleId = emptyToNull(data.vehicle_id);
   const supabase = await createClient();
+
+  if (vehicleId) {
+    const vehicleError = await validateVehicleForCustomer(
+      supabase,
+      vehicleId,
+      data.customer_id
+    );
+    if (vehicleError) {
+      redirect(`/devices/${id}/edit?error=${encodeURIComponent(vehicleError)}`);
+    }
+  }
 
   const { error } = await supabase
     .from("devices")
     .update({
+      customer_id: data.customer_id,
       device_model_id: emptyToNull(data.device_model_id),
       serial_number: data.serial_number,
       imei: emptyToNull(data.imei),
@@ -94,6 +160,16 @@ export async function updateDevice(id: string, formData: FormData) {
   if (error) {
     console.error("Update device failed:", error);
     redirect(`/devices/${id}/edit?error=${encodeURIComponent(error.message)}`);
+  }
+
+  const assignmentResult = await syncDeviceVehicleAssignment(
+    supabase,
+    id,
+    vehicleId,
+    data.status
+  );
+  if (assignmentResult.error) {
+    redirect(`/devices/${id}/edit?error=${encodeURIComponent(assignmentResult.error)}`);
   }
 
   await logAuditEvent({

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormSelect } from "@/components/crud/form-select";
@@ -27,10 +28,28 @@ interface ModelOption {
   category: string;
 }
 
+export interface CustomerOption {
+  id: string;
+  full_name: string;
+  phone?: string | null;
+  whatsapp_number?: string | null;
+}
+
+export interface VehicleOption {
+  id: string;
+  customer_id: string | null;
+  plate_number: string;
+  brand?: string | null;
+  customer_name?: string;
+}
+
 interface DeviceFormProps {
   action: (formData: FormData) => void | Promise<void>;
   device?: DeviceWithDates;
   models: ModelOption[];
+  customers: CustomerOption[];
+  vehicles: VehicleOption[];
+  defaultVehicleId?: string | null;
   error?: string | null;
   submitLabel?: string;
   cancelHref?: string;
@@ -41,18 +60,89 @@ function dateInputValue(value: string | null | undefined): string {
   return value.slice(0, 10);
 }
 
+function formatCustomerLabel(customer: CustomerOption): string {
+  const name = customer.full_name?.trim() || "Unnamed Customer";
+  const contact = customer.phone?.trim() || customer.whatsapp_number?.trim();
+  return contact ? `${name} — ${contact}` : name;
+}
+
+function formatVehicleLabel(vehicle: VehicleOption): string {
+  const owner = vehicle.customer_name?.trim() || "Unnamed Customer";
+  const details = [vehicle.plate_number, vehicle.brand].filter(Boolean).join(" · ");
+  return `${details} — ${owner}`;
+}
+
 export function DeviceForm({
   action,
   device,
   models,
+  customers,
+  vehicles,
+  defaultVehicleId,
   error,
   submitLabel = "Save Device",
   cancelHref = "/devices",
 }: DeviceFormProps) {
+  const [customerId, setCustomerId] = useState(device?.customer_id ?? "");
+
+  const filteredVehicles = useMemo(() => {
+    if (!customerId) return vehicles;
+    return vehicles.filter((vehicle) => vehicle.customer_id === customerId);
+  }, [customerId, vehicles]);
+
+  const vehicleOptions = useMemo(
+    () =>
+      filteredVehicles.map((vehicle) => ({
+        value: vehicle.id,
+        label: formatVehicleLabel(vehicle),
+      })),
+    [filteredVehicles]
+  );
+
+  const selectedVehicleStillValid =
+    !defaultVehicleId || filteredVehicles.some((vehicle) => vehicle.id === defaultVehicleId);
+
   return (
     <form action={action} className="space-y-5">
       <FormError message={error} />
       <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2 sm:col-span-2">
+          <Label htmlFor="customer_id">Customer / Device Owner *</Label>
+          <FormSelect
+            id="customer_id"
+            name="customer_id"
+            required
+            value={customerId}
+            onChange={(event) => setCustomerId(event.target.value)}
+            placeholder="Select customer"
+            options={customers.map((customer) => ({
+              value: customer.id,
+              label: formatCustomerLabel(customer),
+            }))}
+          />
+          <p className="text-xs text-muted-foreground">
+            Select the customer who owns this device.
+          </p>
+        </div>
+        <div className="space-y-2 sm:col-span-2">
+          <Label htmlFor="vehicle_id">Assigned Vehicle</Label>
+          <FormSelect
+            key={customerId}
+            id="vehicle_id"
+            name="vehicle_id"
+            defaultValue={selectedVehicleStillValid ? (defaultVehicleId ?? "") : ""}
+            placeholder={
+              customerId && filteredVehicles.length === 0
+                ? "No vehicles for this customer"
+                : "No vehicle assigned"
+            }
+            disabled={Boolean(customerId) && filteredVehicles.length === 0}
+            options={vehicleOptions}
+          />
+          <p className="text-xs text-muted-foreground">
+            Optionally link the device to one of the customer&apos;s vehicles.
+          </p>
+        </div>
         <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="serial_number">Serial Number *</Label>
           <Input

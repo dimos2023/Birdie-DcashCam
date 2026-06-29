@@ -26,6 +26,27 @@ function deviceStatusVariant(status: string) {
   return "outline" as const;
 }
 
+type DeviceRow = {
+  id: string;
+  serial_number: string;
+  imei: string | null;
+  sim_number: string | null;
+  status: string;
+  activation_date: string | null;
+  warranty_end: string | null;
+  device_models?: { name: string; category: string } | null;
+  customers?: { full_name: string } | null;
+  vehicle_devices?: Array<{
+    is_active: boolean;
+    vehicles?: { plate_number: string } | null;
+  }> | null;
+};
+
+function activeVehiclePlate(device: DeviceRow): string {
+  const assignment = device.vehicle_devices?.find((row) => row.is_active);
+  return assignment?.vehicles?.plate_number ?? "Not assigned";
+}
+
 export default async function DevicesPage({
   searchParams,
 }: {
@@ -36,7 +57,14 @@ export default async function DevicesPage({
 
   let query = supabase
     .from("devices")
-    .select("*, device_models(name, category)")
+    .select(
+      `
+      *,
+      device_models(name, category),
+      customers(full_name),
+      vehicle_devices(is_active, vehicles(plate_number))
+    `
+    )
     .order("created_at", { ascending: false });
 
   if (q?.trim()) {
@@ -67,7 +95,7 @@ export default async function DevicesPage({
               description={
                 q
                   ? "Try a different search term or clear the filter."
-                  : "Register Birdie hardware to assign to vehicles and start tracking."
+                  : "Register Birdie hardware to assign to customers and vehicles."
               }
               actionLabel="Register Device"
               actionHref="/devices/new"
@@ -78,6 +106,8 @@ export default async function DevicesPage({
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
                     <TableHead>Serial Number</TableHead>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Vehicle</TableHead>
                     <TableHead>Model</TableHead>
                     <TableHead>IMEI</TableHead>
                     <TableHead>SIM</TableHead>
@@ -88,15 +118,19 @@ export default async function DevicesPage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {devices.map((device) => {
-                    const model = (device as {
-                      device_models?: { name: string; category: string };
-                    }).device_models;
+                  {(devices as DeviceRow[]).map((device) => {
+                    const model = device.device_models;
+                    const customerName =
+                      device.customers?.full_name?.trim() || "Unnamed Customer";
+                    const vehiclePlate = activeVehiclePlate(device);
+
                     return (
                       <TableRow key={device.id} className="hover:bg-[#F2F8FC]/60">
                         <TableCell className="font-mono font-medium text-[#1C3664]">
                           {device.serial_number}
                         </TableCell>
+                        <TableCell>{customerName}</TableCell>
+                        <TableCell className="text-muted-foreground">{vehiclePlate}</TableCell>
                         <TableCell>{model?.name ?? "—"}</TableCell>
                         <TableCell className="font-mono text-sm">{device.imei ?? "—"}</TableCell>
                         <TableCell>{device.sim_number ?? "—"}</TableCell>
