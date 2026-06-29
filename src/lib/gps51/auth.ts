@@ -1,56 +1,97 @@
 import "server-only";
 
-function decodeBasicAuth(authorization: string): { username: string; password: string } | null {
-  if (!authorization.startsWith("Basic ")) return null;
-  try {
-    const decoded = Buffer.from(authorization.slice(6), "base64").toString("utf8");
-    const separator = decoded.indexOf(":");
-    if (separator === -1) return null;
-    return {
-      username: decoded.slice(0, separator),
-      password: decoded.slice(separator + 1),
-    };
-  } catch {
-    return null;
-  }
+export type Gps51SecretSource =
+  | "query"
+  | "header"
+  | "authorization_bearer"
+  | "body"
+  | null;
+
+export type Gps51AuthDebug = {
+  expectedSecretConfigured: boolean;
+  expectedSecretLength: number;
+  providedSecretLength: number;
+  source: Gps51SecretSource;
+};
+
+function trimSecret(value: string | null | undefined): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
 }
 
 export function getGps51WebhookSecret(): string | undefined {
-  return process.env.GPS51_WEBHOOK_SECRET?.trim() || undefined;
+  return trimSecret(process.env.GPS51_WEBHOOK_SECRET);
 }
 
-export function validateGps51WebhookSecret(request: Request, url: URL): boolean {
-  const expected = getGps51WebhookSecret();
-  if (!expected) {
-    console.error("GPS51 webhook rejected: GPS51_WEBHOOK_SECRET is not configured");
-    return false;
+function secretFromBody(body: unknown): string | undefined {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return undefined;
+  const record = body as Record<string, unknown>;
+  if (record.secret == null) return undefined;
+  return trimSecret(String(record.secret));
+}
+
+export function extractProvidedSecret(
+  request: Request,
+  url: URL,
+  body?: unknown
+): { secret?: string; source: Gps51SecretSource } {
+  const querySecret = trimSecret(url.searchParams.get("secret"));
+  if (querySecret) {
+    return { secret: querySecret, source: "query" };
   }
 
-  const headerSecret = request.headers.get("x-gps51-secret");
-  if (headerSecret && headerSecret === expected) return true;
+  const headerSecret = trimSecret(request.headers.get("x-gps51-secret"));
+  if (headerSecret) {
+    return { secret: headerSecret, source: "header" };
+  }
 
-  const querySecret = url.searchParams.get("secret");
-  if (querySecret && querySecret === expected) return true;
-
-  const basicUser = process.env.GPS51_WEBHOOK_BASIC_USER?.trim();
-  const basicPassword = process.env.GPS51_WEBHOOK_BASIC_PASSWORD?.trim();
   const authorization = request.headers.get("authorization");
-
   if (authorization) {
-    const credentials = decodeBasicAuth(authorization);
-    if (credentials) {
-      if (basicUser && basicPassword) {
-        if (credentials.username === basicUser && credentials.password === basicPassword) {
-          return true;
-        }
-      }
-      if (credentials.password === expected || credentials.username === expected) {
-        return true;
+    const bearerMatch = authorization.match(/^Bearer\s+(.+)$/i);
+    if (bearerMatch?.[1]) {
+      const bearerSecret = trimSecret(bearerMatch[1]);
+      if (bearerSecret) {
+        return { secret: bearerSecret, source: "authorization_bearer" };
       }
     }
   }
 
-  return false;
+  const bodySecret = secretFromBody(body);
+  if (bodySecret) {
+    return { secret: bodySecret, source: "body" };
+  }
+
+  return { secret: undefined, source: null };
+}
+
+export function validateGps51WebhookAuth(
+  request: Request,
+  url: URL,
+  body?: unknown
+): { authorized: boolean; debug: Gps51AuthDebug } {
+  const expected = getGps51WebhookSecret();
+  const { secret, source } = extractProvidedSecret(request, url, body);
+
+  const debug: Gps51AuthDebug = {
+    expectedSecretConfigured: Boolean(expected),
+    expectedSecretLength: expected?.length ?? 0,
+    providedSecretLength: secret?.length ?? 0,
+    source,
+  };
+
+  if (!expected || !secret) {
+    return { authorized: false, debug };
+  }
+
+  return {
+    authorized: secret === expected,
+    debug,
+  };
+}
+
+export function logGps51AuthDebug(debug: Gps51AuthDebug, authorized: boolean): void {
+  const message = authorized ? "GPS51 webhook authorized" : "GPS51 webhook unauthorized";
+  console.log(message, debug);
 }
 
 export function headersToJson(request: Request): Record<string, string> {
@@ -63,4 +104,16 @@ export function headersToJson(request: Request): Record<string, string> {
     headers[key] = value;
   });
   return headers;
+}
+
+export function stripSecretFromPayload(payload: unknown): unknown {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return payload;
+  }
+
+  const record = { ...(payload as Record<string, unknown>) };
+  if ("secret" in record) {
+    delete record.secret;
+  }
+  return record;
 }

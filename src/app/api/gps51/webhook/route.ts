@@ -3,7 +3,9 @@ import type { Json } from "@/lib/types";
 import {
   getGps51WebhookSecret,
   headersToJson,
-  validateGps51WebhookSecret,
+  logGps51AuthDebug,
+  stripSecretFromPayload,
+  validateGps51WebhookAuth,
 } from "@/lib/gps51/auth";
 import {
   hasAnyParsedFields,
@@ -52,21 +54,35 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const url = new URL(request.url);
+  const expectedSecret = getGps51WebhookSecret();
 
-  if (!getGps51WebhookSecret()) {
+  if (!expectedSecret) {
     console.error("GPS51 webhook: GPS51_WEBHOOK_SECRET is not configured");
+    logGps51AuthDebug(
+      {
+        expectedSecretConfigured: false,
+        expectedSecretLength: 0,
+        providedSecretLength: 0,
+        source: null,
+      },
+      false
+    );
     return NextResponse.json(
       { success: false, error: "Webhook secret is not configured" },
       { status: 503 }
     );
   }
 
-  if (!validateGps51WebhookSecret(request, url)) {
+  const rawPayload = await parseRequestBody(request);
+  const auth = validateGps51WebhookAuth(request, url, rawPayload);
+  logGps51AuthDebug(auth.debug, auth.authorized);
+
+  if (!auth.authorized) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 
+  const payload = stripSecretFromPayload(rawPayload);
   const headers = headersToJson(request);
-  const payload = await parseRequestBody(request);
 
   console.log("GPS51 webhook received:", JSON.stringify({ headers, payload }));
 
