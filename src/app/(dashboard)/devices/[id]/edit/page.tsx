@@ -5,6 +5,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DeviceForm } from "@/components/crud/device-form";
+import { JtTerminalForm } from "@/components/jt/jt-terminal-form";
 import { createClient } from "@/lib/supabase/server";
 import { updateDevice } from "@/app/(dashboard)/devices/actions";
 import { DEFAULT_ORGANIZATION_ID } from "@/lib/constants/organization";
@@ -22,7 +23,7 @@ export default async function EditDevicePage({
   const { error } = await searchParams;
   const supabase = await createClient();
 
-  const [deviceRes, modelsRes, customersRes, vehiclesRes, assignmentRes] = await Promise.all([
+  const [deviceRes, modelsRes, customersRes, vehiclesRes, assignmentRes, jtTerminalRes] = await Promise.all([
     supabase.from("devices").select("*").eq("id", id).single(),
     supabase.from("device_models").select("id, name, category").order("name"),
     supabase
@@ -41,6 +42,7 @@ export default async function EditDevicePage({
       .eq("device_id", id)
       .eq("is_active", true)
       .maybeSingle(),
+    supabase.from("jt_terminals").select("*").eq("device_id", id).maybeSingle(),
   ]);
 
   if (!deviceRes.data) notFound();
@@ -71,7 +73,7 @@ export default async function EditDevicePage({
           Back to details
         </LinkButton>
       </PageHeader>
-      <div className="p-4 md:p-6">
+      <div className="space-y-6 p-4 md:p-6">
         <Card className="max-w-2xl border border-[#e8f2fa] shadow-sm">
           <CardHeader>
             <CardTitle className="text-[#1C3664]">Update device</CardTitle>
@@ -97,6 +99,22 @@ export default async function EditDevicePage({
               error={error ? decodeURIComponent(error) : null}
               submitLabel="Update Device"
               cancelHref={`/devices/${id}`}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="max-w-2xl border border-[#e8f2fa] shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-[#1C3664]">Direct JT terminal</CardTitle>
+            <CardDescription>
+              Provision JT/T 808 signaling and JT/T 1078 media identifiers for the VPS gateway.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <JtTerminalForm
+              deviceId={id}
+              terminal={jtTerminalRes.data}
+              vehicleId={assignmentRes.data?.vehicle_id ?? null}
             />
           </CardContent>
         </Card>

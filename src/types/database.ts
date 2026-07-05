@@ -495,8 +495,167 @@ export interface Database {
           },
         ];
       };
+      jt_terminals: {
+        Row: {
+          id: string;
+          organization_id: string;
+          device_id: string | null;
+          vehicle_id: string | null;
+          customer_id: string | null;
+          display_name: string | null;
+          terminal_no: string;
+          media_sim_no: string | null;
+          imei: string | null;
+          terminal_id_code: string | null;
+          manufacturer_id: string | null;
+          protocol_version: "auto" | "2011" | "2019";
+          timezone_offset_minutes: number;
+          allow_auto_registration: boolean;
+          is_enabled: boolean;
+          expected_video_channels: number | null;
+          registration_state: string;
+          is_online: boolean;
+          last_seen_at: string | null;
+          plate_number: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          device_id?: string | null;
+          vehicle_id?: string | null;
+          customer_id?: string | null;
+          display_name?: string | null;
+          terminal_no: string;
+          media_sim_no?: string | null;
+          imei?: string | null;
+          terminal_id_code?: string | null;
+          manufacturer_id?: string | null;
+          protocol_version?: "auto" | "2011" | "2019";
+          timezone_offset_minutes?: number;
+          allow_auto_registration?: boolean;
+          is_enabled?: boolean;
+          expected_video_channels?: number | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["jt_terminals"]["Insert"]>;
+        Relationships: [];
+      };
+      jt_commands: {
+        Row: {
+          id: string;
+          organization_id: string;
+          terminal_id: string;
+          stream_session_id: string | null;
+          command_name: string;
+          message_id: number;
+          payload: Json;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          terminal_id: string;
+          stream_session_id?: string | null;
+          command_name: string;
+          message_id: number;
+          payload?: Json;
+          status?: string;
+          created_by?: string | null;
+          expires_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["jt_commands"]["Insert"]>;
+        Relationships: [];
+      };
+      jt_stream_sessions: {
+        Row: {
+          id: string;
+          organization_id: string;
+          terminal_id: string;
+          vehicle_id: string | null;
+          session_key: string;
+          mode: string;
+          logical_channel: number;
+          data_type: string;
+          stream_type: string;
+          status: string;
+          playback_url: string | null;
+          request_command_id: string | null;
+          stop_command_id: string | null;
+          playback_start: string | null;
+          playback_end: string | null;
+          media_sim_no: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          terminal_id: string;
+          vehicle_id?: string | null;
+          session_key: string;
+          mode: string;
+          logical_channel: number;
+          data_type?: string;
+          stream_type?: string;
+          status?: string;
+          playback_start?: string | null;
+          playback_end?: string | null;
+          request_command_id?: string | null;
+          stop_command_id?: string | null;
+        };
+        Update: {
+          status?: string;
+          playback_url?: string | null;
+          request_command_id?: string | null;
+          stop_command_id?: string | null;
+          playback_start?: string | null;
+          playback_end?: string | null;
+          mode?: string;
+        };
+        Relationships: [];
+      };
     };
-    Views: Record<string, never>;
+    Views: {
+      jt_terminal_live: {
+        Row: {
+          terminal_id: string;
+          organization_id: string;
+          device_id: string | null;
+          vehicle_id: string | null;
+          customer_id: string | null;
+          display_name: string | null;
+          terminal_no: string;
+          media_sim_no: string | null;
+          imei: string | null;
+          terminal_model: string | null;
+          plate_number: string | null;
+          protocol_version: string;
+          registration_state: string;
+          is_enabled: boolean;
+          is_online: boolean;
+          last_seen_at: string | null;
+          located_at: string | null;
+          position_received_at: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          altitude_m: number | null;
+          speed_kmh: number | null;
+          direction_deg: number | null;
+          acc_on: boolean | null;
+          positioned: boolean | null;
+          moving: boolean | null;
+          alarm_bits: number | null;
+          status_bits: number | null;
+          mileage_km: number | null;
+          fuel_l: number | null;
+          signal_strength: number | null;
+          satellite_count: number | null;
+        };
+        Relationships: [];
+      };
+    };
     Functions: Record<string, never>;
     CompositeTypes: Record<string, never>;
     Enums: {
@@ -524,3 +683,7 @@ export type WhatsappMessage = Database["public"]["Tables"]["whatsapp_messages"][
 export type AuditLog = Database["public"]["Tables"]["audit_logs"]["Row"];
 export type Gps51WebhookLog = Database["public"]["Tables"]["gps51_webhook_logs"]["Row"];
 export type Gps51DeviceMapping = Database["public"]["Tables"]["gps51_device_mappings"]["Row"];
+export type JtTerminal = Database["public"]["Tables"]["jt_terminals"]["Row"];
+export type JtCommand = Database["public"]["Tables"]["jt_commands"]["Row"];
+export type JtStreamSession = Database["public"]["Tables"]["jt_stream_sessions"]["Row"];
+export type JtTerminalLive = Database["public"]["Views"]["jt_terminal_live"]["Row"];

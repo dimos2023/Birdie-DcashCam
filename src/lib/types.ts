@@ -21,6 +21,10 @@ export type {
   AuditLog,
   Gps51WebhookLog,
   Gps51DeviceMapping,
+  JtTerminal,
+  JtCommand,
+  JtStreamSession,
+  JtTerminalLive,
 } from "@/types/database";
 
 export const BRAND_COLORS = {

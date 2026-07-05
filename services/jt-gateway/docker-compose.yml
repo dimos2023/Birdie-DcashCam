@@ -1,0 +1,24 @@
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    restart: unless-stopped
+    ports:
+      - "8554:8554"
+      - "8888:8888"
+    volumes:
+      - ./mediamtx.yml:/mediamtx.yml:ro
+
+  jt-gateway:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - mediamtx
+    ports:
+      - "6808:6808"
+      - "6809:6809"
+      - "8090:8090"
+    user: "1000:1000"
+    read_only: true
+    tmpfs:
+      - /tmp
