@@ -1,0 +1,66 @@
+{
+  "status": 0,
+  "rootuser": {
+    "username": "BXAW",
+    "usertype": 1,
+    "userid": "1001",
+    "groups": [
+      {
+        "groupname": "Fleet A",
+        "groupid": "g1",
+        "devices": [
+          {
+            "deviceid": "860000000000001",
+            "devicename": "Unit 1",
+            "lat": 24.7136,
+            "lon": 46.6753,
+            "speed": 42.5,
+            "online": 1,
+            "updatetime": "2026-06-29T10:00:00Z"
+          }
+        ],
+        "children": [
+          {
+            "groupname": "Sub Group",
+            "devices": [
+              {
+                "deviceId": "860000000000002",
+                "deviceName": "Unit 2",
+                "latitude": 24.72,
+                "longitude": 46.68,
+                "status": "online"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "childusers": [
+      {
+        "username": "sub1",
+        "userid": "2001",
+        "deviceinfos": [
+          {
+            "imei": "860000000000003",
+            "name": "Unit 3",
+            "acc": 1,
+            "address": "Riyadh"
+          }
+        ]
+      }
+    ],
+    "records": [
+      {
+        "groupname": "Legacy Group",
+        "devices": [
+          {
+            "terminalno": "860000000000004",
+            "devicename": "Unit 4",
+            "lng": 46.7,
+            "lat": 24.71
+          }
+        ]
+      }
+    ]
+  }
+}

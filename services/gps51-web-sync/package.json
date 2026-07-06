@@ -1,0 +1,39 @@
+{
+  "name": "@birdie/gps51-web-sync",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "auth": "tsx src/auth/bootstrap.ts",
+    "discover": "tsx src/browser/discovery.ts",
+    "discover:live": "tsx src/browser/live-discovery.ts",
+    "sync:live:dry": "tsx src/worker/live-sync-cli.ts dry",
+    "sync:live:once": "tsx src/worker/live-sync-cli.ts once",
+    "sync:live": "tsx src/worker/live-sync-cli.ts live",
+    "sync:inventory:dry": "tsx src/worker/inventory-sync-cli.ts dry",
+    "sync:inventory": "tsx src/worker/inventory-sync-cli.ts sync",
+    "reconcile:inventory": "tsx src/worker/inventory-sync-cli.ts reconcile",
+    "sync": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
+    "dotenv": "^17.4.2",
+    "fastify": "^5.3.3",
+    "pino": "^9.7.0",
+    "playwright": "1.60.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.1",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

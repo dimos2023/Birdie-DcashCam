@@ -1,0 +1,31 @@
+{
+  "status": 0,
+  "records": [
+    {
+      "deviceid": "860000000000001",
+      "devicename": "Fleet Unit 01",
+      "imei": "860000000000001",
+      "sim": "13800138000",
+      "callat": 24.7136,
+      "callon": 46.6753,
+      "speed": 42.5,
+      "online": 1,
+      "acc": 1,
+      "gpstime": "2026-07-06 13:45:00",
+      "address": "Riyadh, Saudi Arabia",
+      "satellite": 12,
+      "signal": 85
+    },
+    {
+      "deviceid": "860000000000002",
+      "devicename": "Fleet Unit 02",
+      "imei": "860000000000002",
+      "callat": 21.4858,
+      "callon": 39.1925,
+      "speed": 0,
+      "online": 0,
+      "acc": 0,
+      "gpstime": "2026-07-06 13:44:10"
+    }
+  ]
+}

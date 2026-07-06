@@ -1,0 +1,20 @@
+{
+  "status": 0,
+  "records": [
+    {
+      "deviceid": "860000000000001",
+      "alarmtype": "overspeed",
+      "lat": 24.7136,
+      "lon": 46.6753,
+      "speed": 120,
+      "time": "2026-06-29T09:00:00Z"
+    },
+    {
+      "deviceid": "860000000000002",
+      "alarmType": "geofence",
+      "latitude": 24.72,
+      "longitude": 46.68,
+      "speed": 0
+    }
+  ]
+}

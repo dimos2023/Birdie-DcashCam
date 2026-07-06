@@ -1,0 +1,15 @@
+services:
+  gps51-web-sync:
+    build: .
+    restart: unless-stopped
+    init: true
+    shm_size: "512mb"
+    mem_limit: 768m
+    cpus: "0.75"
+    pids_limit: 256
+    env_file: .env
+    ports:
+      - "127.0.0.1:8091:8091"
+    volumes:
+      - ./data/auth:/data/auth
+      - ./data/captures:/data/captures
