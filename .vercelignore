@@ -1,0 +1,5 @@
+﻿services/gps51-web-sync/
+services/jt-gateway/
+services/**/data/
+services/**/*.log
+services/**/*.zip
