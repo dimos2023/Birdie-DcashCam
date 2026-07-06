@@ -1,0 +1,92 @@
+{
+  "totalObjectsVisited": 666,
+  "accountNodeCount": 33,
+  "groupNodeCount": 28,
+  "detectedDeviceCount": 605,
+  "uniqueDeviceCount": 605,
+  "duplicateDeviceCount": 0,
+  "identifierFieldFrequency": {
+    "deviceid": 605
+  },
+  "nameFieldFrequency": {
+    "devicename": 605
+  },
+  "childCollectionFrequency": {
+    "groups": 33,
+    "devices": 28,
+    "subusers": 33
+  },
+  "sampleDeviceKeys": [
+    "allowedit",
+    "cartagcolor",
+    "creater",
+    "createtime",
+    "deviceid",
+    "devicename",
+    "devicetag",
+    "devicetype",
+    "expirenotifytime",
+    "firstloctime",
+    "forwardid",
+    "icon",
+    "initloctime",
+    "isfree",
+    "lastactivetime",
+    "loginname",
+    "needalarmstr",
+    "notifyphonenumisopen",
+    "offlinedelay",
+    "overduetime",
+    "packageids",
+    "prechargeyears",
+    "remark",
+    "remark2",
+    "simiccid",
+    "simnum",
+    "stared",
+    "videochannelcount",
+    "videochannelsetting"
+  ],
+  "sampleDevices": [
+    {
+      "sourceDeviceId": "18270981243",
+      "deviceName": "18270981243",
+      "groupPath": "rootuser / groups[0] / devices[0]",
+      "onlineStatus": "unknown",
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "sourceDeviceId": "18270981248",
+      "deviceName": "18270981248",
+      "groupPath": "rootuser / groups[0] / devices[1]",
+      "onlineStatus": "unknown",
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "sourceDeviceId": "18270981249",
+      "deviceName": "18270981249",
+      "groupPath": "rootuser / groups[0] / devices[2]",
+      "onlineStatus": "unknown",
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "sourceDeviceId": "18270981218",
+      "deviceName": "18270981218",
+      "groupPath": "rootuser / groups[0] / devices[3]",
+      "onlineStatus": "unknown",
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "sourceDeviceId": "18270981160",
+      "deviceName": "18270981160",
+      "groupPath": "rootuser / groups[0] / devices[4]",
+      "onlineStatus": "unknown",
+      "latitude": null,
+      "longitude": null
+    }
+  ]
+}

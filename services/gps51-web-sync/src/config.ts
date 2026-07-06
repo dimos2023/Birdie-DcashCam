@@ -29,6 +29,20 @@ const envSchema = z.object({
   GPS51_LIVE_ONCE_DURATION_SECONDS: z.coerce.number().int().min(30).default(300),
   GPS51_LIVE_MAX_FUTURE_MS: z.coerce.number().int().min(60_000).default(600_000),
 
+  GPS51_SUBSCRIBE_ALL: z
+    .string()
+    .optional()
+    .default("false")
+    .transform((v) => v === "true" || v === "1"),
+  GPS51_SUBSCRIPTION_BATCH_SIZE: z.coerce.number().int().min(1).max(500).default(50),
+  GPS51_SUBSCRIPTION_BATCH_DELAY_MS: z.coerce.number().int().min(0).max(10_000).default(500),
+  GPS51_SUBSCRIPTION_REFRESH_SECONDS: z.coerce.number().int().min(60).default(300),
+  GPS51_STATUS_REFRESH_SECONDS: z.coerce.number().int().min(30).default(180),
+  GPS51_STATUS_MIN_DEVICES: z.coerce.number().int().min(1).default(550),
+  GPS51_STATUS_BOOTSTRAP_MAX_PORTAL_DELTA: z.coerce.number().int().min(0).default(5),
+  GPS51_STATUS_DOM_MAX_DELTA: z.coerce.number().int().min(0).default(2),
+  GPS51_STATUS_DOM_MIN_OVERLAP_PERCENT: z.coerce.number().int().min(50).max(100).default(99),
+
   SYNC_INTERVAL_SECONDS: z.coerce.number().int().min(15).default(60),
   SYNC_JITTER_SECONDS: z.coerce.number().int().min(0).max(60).default(10),
   SYNC_REQUEST_TIMEOUT_MS: z.coerce.number().int().min(5000).default(30_000),
@@ -76,7 +90,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     storageStatePath,
     captureDir,
     loginUrl: `${base}/#/login`,
-    monitorUrl: parsed.data.GPS51_MONITOR_URL ?? `${base}/#/monitor`,
+    monitorUrl: parsed.data.GPS51_MONITOR_URL ?? `${base}/#/monitorPage`,
   };
 
   return cached;
@@ -88,17 +102,21 @@ export function ensureCaptureDir(config: AppConfig): void {
 }
 
 export function validateWorkerConfig(config: AppConfig): void {
-  if (!config.GPS51_BASE_URL.trim()) {
-    throw new Error("GPS51_BASE_URL is required");
-  }
-  if (!config.ORGANIZATION_ID) {
-    throw new Error("ORGANIZATION_ID is invalid");
-  }
+  validateBrowserWorkerConfig(config);
   if (!config.SUPABASE_URL?.trim()) {
     throw new Error("SUPABASE_URL is required for sync/discover");
   }
   if (!config.SUPABASE_SERVICE_ROLE_KEY?.trim()) {
     throw new Error("SUPABASE_SERVICE_ROLE_KEY is required for sync/discover");
+  }
+}
+
+export function validateBrowserWorkerConfig(config: AppConfig): void {
+  if (!config.GPS51_BASE_URL.trim()) {
+    throw new Error("GPS51_BASE_URL is required");
+  }
+  if (!config.ORGANIZATION_ID) {
+    throw new Error("ORGANIZATION_ID is invalid");
   }
   if (!existsSync(config.storageStatePath)) {
     throw new Error(

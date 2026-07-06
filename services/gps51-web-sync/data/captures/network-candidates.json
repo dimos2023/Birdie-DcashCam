@@ -1,0 +1,93 @@
+[
+  {
+    "url": "https://gps51.com/webapi?action=querydevicestree&token=%5BREDACTED%5D&extend=self&serverid=0",
+    "action": "querydevicestree",
+    "method": "POST",
+    "score": 35,
+    "contentType": "application/json;charset=UTF-8",
+    "capturedAt": "2026-07-05T23:26:03.249Z",
+    "sampleKeys": [
+      "status",
+      "cause",
+      "rootuser"
+    ]
+  },
+  {
+    "url": "https://gps51.com/webapi?action=querypermissionsbyusername&token=%5BREDACTED%5D&extend=self&serverid=0",
+    "action": "querypermissionsbyusername",
+    "method": "POST",
+    "score": 11,
+    "contentType": "application/json;charset=UTF-8",
+    "capturedAt": "2026-07-05T23:26:02.843Z",
+    "sampleKeys": [
+      "status",
+      "cause",
+      "permissions"
+    ]
+  },
+  {
+    "url": "https://gps51.com/webapi?action=querydevicetypeownerbyuser&token=%5BREDACTED%5D&extend=self&serverid=0",
+    "action": "querydevicetypeownerbyuser",
+    "method": "POST",
+    "score": 11,
+    "contentType": "application/json;charset=UTF-8",
+    "capturedAt": "2026-07-05T23:26:03.161Z",
+    "sampleKeys": [
+      "status",
+      "cause",
+      "devicetypes"
+    ]
+  },
+  {
+    "url": "https://gps51.com/webapi?action=queryhaddevicecmdbyuserwithlanguage&token=%5BREDACTED%5D&extend=self&serverid=0",
+    "action": "queryhaddevicecmdbyuserwithlanguage",
+    "method": "POST",
+    "score": 11,
+    "contentType": "application/json;charset=UTF-8",
+    "capturedAt": "2026-07-05T23:26:03.269Z",
+    "sampleKeys": [
+      "status",
+      "cause",
+      "records"
+    ]
+  },
+  {
+    "url": "https://gps51.com/webapi?action=queryusersetting&token=%5BREDACTED%5D&extend=self&serverid=0",
+    "action": "queryusersetting",
+    "method": "POST",
+    "score": 3,
+    "contentType": "application/json;charset=UTF-8",
+    "capturedAt": "2026-07-05T23:26:03.483Z",
+    "sampleKeys": [
+      "status",
+      "cause",
+      "usersetting"
+    ]
+  },
+  {
+    "url": "https://gps51.com/webapi?action=querycustommarkerrecords&token=%5BREDACTED%5D&extend=self&serverid=0",
+    "action": "querycustommarkerrecords",
+    "method": "POST",
+    "score": 3,
+    "contentType": "application/json;charset=UTF-8",
+    "capturedAt": "2026-07-05T23:26:06.788Z",
+    "sampleKeys": [
+      "status",
+      "cause",
+      "categorys"
+    ]
+  },
+  {
+    "url": "https://gps51.com/webapi?action=querygeosystemrecords&token=%5BREDACTED%5D&extend=self&serverid=0",
+    "action": "querygeosystemrecords",
+    "method": "POST",
+    "score": 3,
+    "contentType": "application/json;charset=UTF-8",
+    "capturedAt": "2026-07-05T23:26:06.796Z",
+    "sampleKeys": [
+      "status",
+      "cause",
+      "categorys"
+    ]
+  }
+]

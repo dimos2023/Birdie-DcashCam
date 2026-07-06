@@ -1,0 +1,25 @@
+{
+  "portalCounts": {
+    "all": 605,
+    "online": 113,
+    "offline": 492
+  },
+  "calculatedCounts": {
+    "total": 605,
+    "online": 0,
+    "offline": 605,
+    "unknown": 0
+  },
+  "selectedRule": null,
+  "rule": null,
+  "lastActiveTimeUnit": null,
+  "offlineDelayUnit": null,
+  "mismatchCount": 226,
+  "onlineDelta": 113,
+  "offlineDelta": 113,
+  "devicesWithInvalidLastActiveTime": 0,
+  "devicesWithInvalidOfflineDelay": 0,
+  "duplicateDeviceIds": [],
+  "generatedAt": "2026-07-06T07:46:08.881Z",
+  "deviceCount": 605
+}

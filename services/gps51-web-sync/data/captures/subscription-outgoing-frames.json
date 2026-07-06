@@ -1,0 +1,22 @@
+[
+  {
+    "action": "select_one_device",
+    "outgoing": [],
+    "incomingPositionLast": 3
+  },
+  {
+    "action": "select_default_group",
+    "outgoing": [],
+    "incomingPositionLast": 5
+  },
+  {
+    "action": "select_all_devices",
+    "outgoing": [],
+    "incomingPositionLast": 2
+  },
+  {
+    "action": "switch_online_tab",
+    "outgoing": [],
+    "incomingPositionLast": 2
+  }
+]

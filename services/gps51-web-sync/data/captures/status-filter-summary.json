@@ -1,0 +1,42 @@
+{
+  "status": "success",
+  "portalCounts": {
+    "all": 605,
+    "online": 130,
+    "offline": 475,
+    "allBefore": 605,
+    "allAfter": 605,
+    "onlineBefore": 130,
+    "onlineAfter": 130,
+    "offlineBefore": 475,
+    "offlineAfter": 475
+  },
+  "relevantComponentCount": 28127,
+  "changedStatePaths": [],
+  "filteredCollectionCandidates": 0,
+  "bundleMatchCount": 2546,
+  "recommendedSource": "device_list_tree_nodes",
+  "recommendedComponent": "#app.__vue__.$children[0].$children[1].$children[0].$children[1]",
+  "recommendedFunction": "DeviceList.setCurrentZtree / tablesClickRowDevice",
+  "recommendedFieldPath": "treeNode.isOnline",
+  "recommendedMapping": "tree node isOnline/online truthy => online; else offline",
+  "extractionSource": "device_list_tree_nodes",
+  "extractionError": null,
+  "extractionCounts": {
+    "all": 605,
+    "online": 130,
+    "offline": 475
+  },
+  "extractedCounts": {
+    "all": 605,
+    "online": 130,
+    "offline": 475
+  },
+  "onlineOfflineIntersection": [],
+  "unionCount": 605,
+  "inventoryOverlapPercentage": 100,
+  "validated": true,
+  "validationReasons": [],
+  "failureCategories": [],
+  "generatedAt": "2026-07-06T12:15:05.967Z"
+}

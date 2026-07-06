@@ -6,6 +6,7 @@ import { launchBrowser } from "../browser/create-browser.js";
 import { createAuthenticatedContext, isReauthRequired } from "../auth/session.js";
 import { performSafeLiveDiscoveryInteractions } from "../browser/safe-monitor-interactions.js";
 import { attachLiveWebSocketListeners } from "../browser/live-websocket-listener.js";
+import { NetworkCapture } from "../browser/network-capture.js";
 import type { ParsedPositionLast } from "../gps51/position-last-parser.js";
 import { parseEpochMilliseconds } from "../gps51/position-last-parser.js";
 import {
@@ -19,7 +20,6 @@ import {
   fetchAccountByUsername,
   fetchKnownDevices,
   insertLivePosition,
-  markDevicesOffline,
 } from "../db/live-position-repository.js";
 import { ensureInventoryAccount } from "../db/inventory-repository.js";
 import {
@@ -28,6 +28,7 @@ import {
   markAccountSynced,
   startSyncRun,
 } from "../db/repositories.js";
+import { refreshTreeStatusesFromDedicatedPage } from "./status-refresh.js";
 import {
   incrementLivePositionsAccepted,
   incrementLivePositionsRejected,
@@ -158,12 +159,33 @@ async function runLiveSession(
 
   let browser: Browser | null = null;
   let page: Page | null = null;
+  let context: Awaited<ReturnType<typeof createAuthenticatedContext>> | null = null;
   let detachWs: (() => void) | null = null;
+  let statusRefreshTimer: ReturnType<typeof setInterval> | null = null;
+  const networkCapture = new NetworkCapture();
+  const statusPageRef: { page: Page | null } = { page: null };
+
+  const refreshStatuses = async (reason: string) => {
+    if (!context || !sb || !accountId) return;
+    const result = await refreshTreeStatusesFromDedicatedPage(
+      context,
+      sb,
+      accountId,
+      config,
+      log,
+      statusPageRef,
+      knownDeviceIds,
+    );
+    if (result.refreshed) {
+      log.info({ reason, ...result }, "Periodic GPS51 tree status refresh");
+    }
+  };
 
   try {
     browser = await launchBrowser(config, { forceHeadless: true });
-    const context = await createAuthenticatedContext(config, browser);
+    context = await createAuthenticatedContext(config, browser);
     page = await context.newPage();
+    networkCapture.attach(page);
 
     detachWs = attachLiveWebSocketListeners(page, log, {
       onPositionLast: async (position) => {
@@ -190,19 +212,19 @@ async function runLiveSession(
     setLiveAuthenticated(true);
     await performSafeLiveDiscoveryInteractions(page);
 
+    if (mode !== "dry" && sb && accountId) {
+      await refreshStatuses("startup");
+      statusRefreshTimer = setInterval(() => {
+        void refreshStatuses("periodic");
+      }, config.GPS51_STATUS_REFRESH_SECONDS * 1000);
+    }
+
     const started = Date.now();
     while (Date.now() - started < durationMs) {
       await sleep(Math.min(5_000, durationMs - (Date.now() - started)));
       if (mode === "continuous") {
         if (page.isClosed()) throw new Error("Monitor page closed");
         if (await isReauthRequired(page)) throw new LiveReauthRequiredError();
-      }
-
-      if (mode !== "dry" && sb && accountId && !offlineManager.isWarmupActive()) {
-        const staleIds = offlineManager.getStaleDeviceIds();
-        if (staleIds.length > 0) {
-          await markDevicesOffline(sb, accountId, staleIds);
-        }
       }
     }
 
@@ -225,7 +247,9 @@ async function runLiveSession(
       await markAccountSynced(sb, accountId, "success");
     }
   } finally {
+    if (statusRefreshTimer) clearInterval(statusRefreshTimer);
     detachWs?.();
+    if (statusPageRef.page) await statusPageRef.page.close().catch(() => undefined);
     if (page) await page.context().close().catch(() => undefined);
     if (browser) await browser.close().catch(() => undefined);
   }

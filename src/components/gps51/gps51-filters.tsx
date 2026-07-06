@@ -19,7 +19,6 @@ const STATUS_OPTIONS = [
   { value: "online", label: "Online" },
   { value: "offline", label: "Offline" },
   { value: "unknown", label: "Unknown" },
-  { value: "stale", label: "Stale" },
 ];
 
 const POSITION_OPTIONS = [

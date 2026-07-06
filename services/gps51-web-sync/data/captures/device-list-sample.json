@@ -1,0 +1,49 @@
+{
+  "source": "querydevicestree",
+  "treeDeviceCount": 605,
+  "domDeviceCount": 0,
+  "alarmRecordCount": 100,
+  "querydevicestreeCaptured": true,
+  "sampleDevices": [
+    {
+      "sourceDeviceId": "18270981243",
+      "deviceName": "18270981243",
+      "groupPath": "rootuser / groups[0] / devices[0]",
+      "latitude": null,
+      "longitude": null,
+      "onlineStatus": "unknown"
+    },
+    {
+      "sourceDeviceId": "18270981248",
+      "deviceName": "18270981248",
+      "groupPath": "rootuser / groups[0] / devices[1]",
+      "latitude": null,
+      "longitude": null,
+      "onlineStatus": "unknown"
+    },
+    {
+      "sourceDeviceId": "18270981249",
+      "deviceName": "18270981249",
+      "groupPath": "rootuser / groups[0] / devices[2]",
+      "latitude": null,
+      "longitude": null,
+      "onlineStatus": "unknown"
+    },
+    {
+      "sourceDeviceId": "18270981218",
+      "deviceName": "18270981218",
+      "groupPath": "rootuser / groups[0] / devices[3]",
+      "latitude": null,
+      "longitude": null,
+      "onlineStatus": "unknown"
+    },
+    {
+      "sourceDeviceId": "18270981160",
+      "deviceName": "18270981160",
+      "groupPath": "rootuser / groups[0] / devices[4]",
+      "latitude": null,
+      "longitude": null,
+      "onlineStatus": "unknown"
+    }
+  ]
+}

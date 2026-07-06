@@ -1,0 +1,33 @@
+{
+  "status": "success",
+  "mode": "sync",
+  "portalCounts": {
+    "all": 605,
+    "online": 156,
+    "offline": 449,
+    "allBefore": 605,
+    "allAfter": 605,
+    "onlineBefore": 156,
+    "onlineAfter": 156,
+    "offlineBefore": 449,
+    "offlineAfter": 449
+  },
+  "extractedCounts": {
+    "all": 605,
+    "online": 156,
+    "offline": 449
+  },
+  "inventoryCount": 605,
+  "inventorySource": "querydevicestree",
+  "intersectionCount": 0,
+  "unionCount": 605,
+  "inventoryOverlapPercentage": 100,
+  "validated": true,
+  "validationReasons": [],
+  "databaseWrites": 605,
+  "componentPath": "#app.__vue__.$children[0].$children[1].$children[0].$children[1]",
+  "extractionError": null,
+  "malformedNodeCount": 0,
+  "errorMessage": null,
+  "generatedAt": "2026-07-06T14:35:15.064Z"
+}

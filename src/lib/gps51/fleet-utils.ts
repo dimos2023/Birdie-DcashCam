@@ -1,11 +1,17 @@
 import { formatDistanceToNow } from "date-fns";
 import type { Gps51WebDeviceLive } from "@/lib/types";
 
-export type Gps51DisplayStatus = "online" | "offline" | "unknown" | "stale";
+export type Gps51DisplayStatus = "online" | "offline" | "unknown";
 
 export const GPS51_SOURCE_LABEL = "GPS51 Web";
 export const RECENTLY_UPDATED_MS = 10 * 60 * 1000;
 export const PAGE_SIZE = 50;
+
+export const UNKNOWN_STATUS_TOOLTIP =
+  "Status could not be determined from the latest validated GPS51 DeviceList tree snapshot.";
+
+export const STATUS_SNAPSHOT_TOOLTIP =
+  "Device connectivity status comes from the latest validated GPS51 Monitor status snapshot. Position availability is updated separately through the GPS51 WebSocket.";
 
 export function hasValidCoordinates(
   device: Pick<Gps51WebDeviceLive, "latitude" | "longitude">
@@ -26,18 +32,32 @@ export function parseTimestamp(value: string | null | undefined): number | null 
   return Number.isFinite(ms) ? ms : null;
 }
 
+export function getLastSeenMs(device: Gps51WebDeviceLive): number | null {
+  return parseTimestamp(device.last_seen_at);
+}
+
+export function getRecentActivityMs(device: Gps51WebDeviceLive): number | null {
+  return getLastSeenMs(device) ?? parseTimestamp(device.received_at);
+}
+
 export function isRecentlySeen(device: Gps51WebDeviceLive, nowMs = Date.now()): boolean {
-  const seen = parseTimestamp(device.last_seen_at) ?? parseTimestamp(device.received_at);
+  const seen = getRecentActivityMs(device);
   if (seen == null) return false;
   return nowMs - seen <= RECENTLY_UPDATED_MS;
 }
 
-export function getDisplayStatus(device: Gps51WebDeviceLive, nowMs = Date.now()): Gps51DisplayStatus {
-  const base = device.online_status;
-  if (base === "unknown") return "unknown";
-  if (base === "offline") return "offline";
-  if (base === "online" && !isRecentlySeen(device, nowMs)) return "stale";
-  return "online";
+export function getStoredStatus(device: Gps51WebDeviceLive): Gps51DisplayStatus {
+  if (device.online_status === "online") return "online";
+  if (device.online_status === "offline") return "offline";
+  return "unknown";
+}
+
+export function getEffectiveStatus(device: Gps51WebDeviceLive): Gps51DisplayStatus {
+  return getStoredStatus(device);
+}
+
+export function getDisplayStatus(device: Gps51WebDeviceLive): Gps51DisplayStatus {
+  return getEffectiveStatus(device);
 }
 
 export function formatRelativeTime(value: string | null | undefined): string {
@@ -105,7 +125,7 @@ export function filterGps51Devices(
     }
 
     if (filters.status !== "all") {
-      if (getDisplayStatus(device, nowMs) !== filters.status) return false;
+      if (getEffectiveStatus(device) !== filters.status) return false;
     }
 
     if (filters.group !== "all") {
@@ -144,8 +164,8 @@ export function computeFleetSummary(
   let seenRecently = 0;
 
   for (const device of devices) {
-    const status = getDisplayStatus(device, nowMs);
-    if (status === "online" || status === "stale") online += 1;
+    const status = getEffectiveStatus(device);
+    if (status === "online") online += 1;
     else if (status === "offline") offline += 1;
     else unknown += 1;
 
@@ -169,8 +189,6 @@ export function statusBadgeClass(status: Gps51DisplayStatus): string {
       return "bg-emerald-100 text-emerald-800 border-emerald-200";
     case "offline":
       return "bg-red-100 text-red-800 border-red-200";
-    case "stale":
-      return "bg-amber-100 text-amber-900 border-amber-200";
     default:
       return "bg-gray-100 text-gray-700 border-gray-200";
   }
@@ -182,8 +200,6 @@ export function statusLabel(status: Gps51DisplayStatus): string {
       return "Online";
     case "offline":
       return "Offline";
-    case "stale":
-      return "Stale";
     default:
       return "Unknown";
   }
@@ -195,8 +211,6 @@ export function markerColor(status: Gps51DisplayStatus): string {
       return "#22c55e";
     case "offline":
       return "#ef4444";
-    case "stale":
-      return "#f59e0b";
     default:
       return "#9ca3af";
   }

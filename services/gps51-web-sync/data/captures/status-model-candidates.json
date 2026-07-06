@@ -1,0 +1,62 @@
+[
+  {
+    "source": "vue_state",
+    "dataPath": "#app.__vue__",
+    "tab": "all",
+    "matchedInventoryCount": 79,
+    "collectionLength": 79,
+    "statusFields": [
+      "_directInactive"
+    ],
+    "datasetSignature": "all:79:18270661442,18270661753,18270661926,18270661950,18270662116",
+    "hasPerDeviceStatus": true,
+    "rejected": true,
+    "rejectionReason": "below_90_percent_expected_count",
+    "score": 0
+  },
+  {
+    "source": "vue_state",
+    "dataPath": "#app.__vue__",
+    "tab": "online",
+    "matchedInventoryCount": 79,
+    "collectionLength": 79,
+    "statusFields": [
+      "_directInactive"
+    ],
+    "datasetSignature": "online:79:18270661442,18270661753,18270661926,18270661950,18270662116",
+    "hasPerDeviceStatus": true,
+    "rejected": true,
+    "rejectionReason": "below_90_percent_expected_count",
+    "score": 0
+  },
+  {
+    "source": "vue_state",
+    "dataPath": "#app.__vue__",
+    "tab": "offline",
+    "matchedInventoryCount": 79,
+    "collectionLength": 79,
+    "statusFields": [
+      "_directInactive"
+    ],
+    "datasetSignature": "offline:79:18270661442,18270661753,18270661926,18270661950,18270662116",
+    "hasPerDeviceStatus": true,
+    "rejected": true,
+    "rejectionReason": "below_90_percent_expected_count",
+    "score": 0
+  },
+  {
+    "source": "vue_state",
+    "dataPath": "#app.__vue__",
+    "tab": "all",
+    "matchedInventoryCount": 79,
+    "collectionLength": 79,
+    "statusFields": [
+      "_directInactive"
+    ],
+    "datasetSignature": "all:79:18270661442,18270661753,18270661926,18270661950,18270662116",
+    "hasPerDeviceStatus": true,
+    "rejected": true,
+    "rejectionReason": "identical_dataset_across_tabs",
+    "score": 0
+  }
+]

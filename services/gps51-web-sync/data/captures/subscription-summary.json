@@ -1,0 +1,53 @@
+{
+  "status": "success",
+  "startedAt": "2026-07-06T07:36:40.073Z",
+  "finishedAt": "2026-07-06T07:37:58.904Z",
+  "selectedHint": 4,
+  "outgoingFrameCount": 0,
+  "incomingFrameCount": 15,
+  "errorMessage": null,
+  "websocketSocketsSeen": 1,
+  "portalCounts": {
+    "all": 605,
+    "online": 118,
+    "offline": 487
+  },
+  "actions": [
+    {
+      "action": "select_one_device",
+      "outgoingFrameCount": 0,
+      "incomingFrameCount": 5,
+      "positionLastCount": 3,
+      "selectedDeviceCountHint": null,
+      "topOutgoingKinds": {}
+    },
+    {
+      "action": "select_default_group",
+      "outgoingFrameCount": 0,
+      "incomingFrameCount": 5,
+      "positionLastCount": 5,
+      "selectedDeviceCountHint": null,
+      "topOutgoingKinds": {}
+    },
+    {
+      "action": "select_all_devices",
+      "outgoingFrameCount": 0,
+      "incomingFrameCount": 3,
+      "positionLastCount": 2,
+      "selectedDeviceCountHint": 4,
+      "topOutgoingKinds": {}
+    },
+    {
+      "action": "switch_online_tab",
+      "outgoingFrameCount": 0,
+      "incomingFrameCount": 2,
+      "positionLastCount": 2,
+      "selectedDeviceCountHint": null,
+      "topOutgoingKinds": {}
+    }
+  ],
+  "recommendedAction": null,
+  "recommendedFrame": null,
+  "deviceIdField": "deviceids",
+  "note": "Outgoing frames are sanitized. Use recommendedFrame for GPS51_SUBSCRIBE_ALL websocket batches when validated."
+}

@@ -21,6 +21,7 @@ export type LiveFrameHandler = {
   onPositionLast: (position: ParsedPositionLast) => void | Promise<void>;
   onRemindMsg: (info: { deviceId: string | null; alarmCode: string | null }) => void;
   onParseError: (reason: string) => void;
+  onWebSocketConnect?: () => void | Promise<void>;
 };
 
 export function isGps51LiveWebSocketUrl(url: string): boolean {
@@ -45,6 +46,7 @@ export function attachLiveWebSocketListeners(
     sockets.add(ws);
     setLiveWebsocketConnected(true);
     log.info({ url: ws.url().split("?")[0] }, "GPS51 live WebSocket connected");
+    void handler.onWebSocketConnect?.();
 
     ws.on("framereceived", (event) => {
       void processFrame(event.payload, handler, log);

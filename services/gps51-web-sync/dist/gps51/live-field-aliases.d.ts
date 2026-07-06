@@ -1,0 +1,17 @@
+export declare const LIVE_DEVICE_ID_KEYS: readonly ["deviceid", "deviceId", "device_id", "imei", "deviceno", "deviceNo", "terminalno", "simnum", "simNum", "sim_num"];
+export declare const LIVE_LATITUDE_KEYS: readonly ["lat", "latitude", "glat", "callat", "calLat"];
+export declare const LIVE_LONGITUDE_KEYS: readonly ["lng", "lon", "longitude", "glng", "callon", "calLon"];
+export declare const LIVE_SPEED_KEYS: readonly ["speed", "speed_kmh", "speedKmh", "spd"];
+export declare const LIVE_ONLINE_KEYS: readonly ["online", "isonline", "isOnline", "device_status", "status"];
+export declare const LIVE_ACC_KEYS: readonly ["acc", "accstatus", "acc_on", "accStatus"];
+export declare const LIVE_TIMESTAMP_KEYS: readonly ["updatetime", "updateTime", "locatedtime", "locateTime", "lastactivetime", "lastActiveTime", "gpstime", "gpsTime", "devicetime", "time", "timestamp"];
+export declare const LIVE_ADDRESS_KEYS: readonly ["address", "addr", "formattedAddress"];
+export declare const ALARM_URL_HINTS: string[];
+export declare const PLAYBACK_URL_HINTS: string[];
+export type LiveFieldGroup = "deviceId" | "latitude" | "longitude" | "speed" | "online" | "acc" | "timestamp" | "address";
+export declare function pickLiveField(record: Record<string, unknown>, keys: readonly string[]): string | null;
+export declare function recordHasFieldGroup(record: Record<string, unknown>, group: LiveFieldGroup): boolean;
+export declare function extractLiveDeviceId(record: Record<string, unknown>): string | null;
+export declare function recordHasCoordinates(record: Record<string, unknown>): boolean;
+export declare function parseLiveTimestamp(record: Record<string, unknown>): Date | null;
+export declare function incrementFieldFrequency(target: Record<string, number>, record: Record<string, unknown>): void;

@@ -1,15 +1,18 @@
-.env
-data/
-playwright/.auth/
-**/*.har
-**/storage-state*.json
-node_modules/
-dist/
-
-# Local discovery and diagnostic artifacts
-discover-output.log
-gps51-discovery-sanitized.zip
-live-discovery-*.txt
-data/
-*.har
-storage-state*.json
+.env
+data/
+playwright/.auth/
+**/*.har
+**/storage-state*.json
+**/session-storage.json
+node_modules/
+dist/
+
+# Local discovery and diagnostic artifacts
+discover-output.log
+gps51-discovery-sanitized.zip
+live-discovery-*.txt
+data/
+data/captures/status-filter-bundles/
+*.har
+storage-state*.json
+

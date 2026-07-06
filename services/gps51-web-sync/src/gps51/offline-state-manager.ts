@@ -60,6 +60,12 @@ export class OfflineStateManager {
   }
 }
 
-export function buildOnlineMetadata(): Record<string, unknown> {
-  return { online_status_source: "websocket_freshness" };
+export function buildWebsocketPositionMetadata(
+  existing: Record<string, unknown> | null,
+): Record<string, unknown> {
+  return {
+    ...(existing ?? {}),
+    online_status_source: "websocket_positionlast",
+    last_websocket_position_at: new Date().toISOString(),
+  };
 }

@@ -1,0 +1,497 @@
+{
+  "tabClickDiagnostics": [
+    {
+      "tab": "all",
+      "clicked": true,
+      "matchedLabel": "All",
+      "matchedElementTag": "SPAN",
+      "matchedElementClasses": "",
+      "clickableAncestorTag": "SPAN",
+      "clickableAncestorClasses": "",
+      "textBeforeClick": "all",
+      "textAfterClick": "all",
+      "strategy": "clickable_ancestor",
+      "classChangedAfterClick": false
+    },
+    {
+      "tab": "online",
+      "clicked": true,
+      "matchedLabel": "Online",
+      "matchedElementTag": "SPAN",
+      "matchedElementClasses": "",
+      "clickableAncestorTag": "SPAN",
+      "clickableAncestorClasses": "",
+      "textBeforeClick": "online",
+      "textAfterClick": "online",
+      "strategy": "clickable_ancestor",
+      "classChangedAfterClick": false
+    },
+    {
+      "tab": "offline",
+      "clicked": true,
+      "matchedLabel": "Offline",
+      "matchedElementTag": "SPAN",
+      "matchedElementClasses": "",
+      "clickableAncestorTag": "SPAN",
+      "clickableAncestorClasses": "",
+      "textBeforeClick": "offline",
+      "textAfterClick": "offline",
+      "strategy": "clickable_ancestor",
+      "classChangedAfterClick": false
+    }
+  ],
+  "tabSelectionEvidence": [
+    {
+      "tab": "all",
+      "ariaSelected": false,
+      "activeClass": false,
+      "classChangedAfterClick": false,
+      "portalCountMatches": false,
+      "rowSignatureChanged": false,
+      "anotherTabLostActive": false,
+      "selected": false,
+      "reasons": []
+    },
+    {
+      "tab": "online",
+      "ariaSelected": false,
+      "activeClass": false,
+      "classChangedAfterClick": false,
+      "portalCountMatches": false,
+      "rowSignatureChanged": true,
+      "anotherTabLostActive": true,
+      "selected": true,
+      "reasons": [
+        "row_signature_changed",
+        "another_tab_lost_active"
+      ]
+    },
+    {
+      "tab": "offline",
+      "ariaSelected": false,
+      "activeClass": false,
+      "classChangedAfterClick": false,
+      "portalCountMatches": false,
+      "rowSignatureChanged": true,
+      "anotherTabLostActive": true,
+      "selected": true,
+      "reasons": [
+        "row_signature_changed",
+        "another_tab_lost_active"
+      ]
+    }
+  ],
+  "containerCandidates": [
+    {
+      "selector": "html",
+      "inventoryIdHits": 11,
+      "inventoryNameHits": 14,
+      "visibleRowCount": 44,
+      "score": 302,
+      "rejectionReason": null
+    },
+    {
+      "selector": "html > body",
+      "inventoryIdHits": 11,
+      "inventoryNameHits": 14,
+      "visibleRowCount": 44,
+      "score": 302,
+      "rejectionReason": null
+    },
+    {
+      "selector": "#app",
+      "inventoryIdHits": 11,
+      "inventoryNameHits": 14,
+      "visibleRowCount": 44,
+      "score": 302,
+      "rejectionReason": null
+    },
+    {
+      "selector": "#app > div.main",
+      "inventoryIdHits": 11,
+      "inventoryNameHits": 14,
+      "visibleRowCount": 44,
+      "score": 302,
+      "rejectionReason": null
+    },
+    {
+      "selector": "#app > div.main > div.router-view",
+      "inventoryIdHits": 11,
+      "inventoryNameHits": 14,
+      "visibleRowCount": 44,
+      "score": 302,
+      "rejectionReason": null
+    },
+    {
+      "selector": "#app > div.main > div.router-view > div.monitor-container",
+      "inventoryIdHits": 11,
+      "inventoryNameHits": 14,
+      "visibleRowCount": 44,
+      "score": 302,
+      "rejectionReason": null
+    },
+    {
+      "selector": "#app > div.main > div.router-view > div.monitor-container > div.split-pane.split-pane-horizontal",
+      "inventoryIdHits": 11,
+      "inventoryNameHits": 14,
+      "visibleRowCount": 44,
+      "score": 302,
+      "rejectionReason": null
+    },
+    {
+      "selector": "#app > div.main > div.router-view > div.monitor-container > div.split-pane.split-pane-horizontal > div.split-pane-container",
+      "inventoryIdHits": 11,
+      "inventoryNameHits": 14,
+      "visibleRowCount": 44,
+      "score": 302,
+      "rejectionReason": null
+    },
+    {
+      "selector": "div.main > div.router-view > div.monitor-container > div.split-pane.split-pane-horizontal > div.split-pane-container > div.split-pane-right-area",
+      "inventoryIdHits": 11,
+      "inventoryNameHits": 13,
+      "visibleRowCount": 12,
+      "score": 271,
+      "rejectionReason": null
+    },
+    {
+      "selector": "div.router-view > div.monitor-container > div.split-pane.split-pane-horizontal > div.split-pane-container > div.split-pane-right-area > div.monitor-content",
+      "inventoryIdHits": 11,
+      "inventoryNameHits": 13,
+      "visibleRowCount": 12,
+      "score": 271,
+      "rejectionReason": null
+    }
+  ],
+  "selectedContainerSelector": "html",
+  "duplicateNameCount": 4,
+  "datasetSignatures": {
+    "all": "all:11:18270661442,18270661753,18270662677,18270663145,18270664157",
+    "online": "online:11:18270661442,18270661753,18270662677,18270663145,18270664157",
+    "offline": "offline:11:18270661442,18270661753,18270662677,18270663145,18270664157"
+  },
+  "rejectionReasons": [
+    "all_count_delta_605",
+    "online_count_delta_107",
+    "offline_count_delta_498",
+    "all_portal_snapshot_delta",
+    "online_portal_snapshot_delta",
+    "offline_portal_snapshot_delta",
+    "inventory_overlap_0",
+    "tab_selection_evidence_missing_1",
+    "no_application_state_candidates"
+  ],
+  "rowSamplesByTab": {
+    "all": [
+      {
+        "text": "Default(88/522)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "group-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0500075557(0/3)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0503050498(2/20)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0503417684(0/1)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0505468514(2/2)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0505551101(7/17)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0505840803(0/2)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0505840876(0/1)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0506661833(1/1)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0506999971(0/2)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      }
+    ],
+    "online": [
+      {
+        "text": "Default(88/522)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "group-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0503050498(2/20)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0505468514(2/2)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0505551101(7/17)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0506661833(1/1)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0532391888(1/1)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0540314141(1/3)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0542911137(1/2)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0553222113(1/2)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0555408401(1/2)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      }
+    ],
+    "offline": [
+      {
+        "text": "Default(434/522)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "group-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0500075557(3/3)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0503050498(18/20)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0503417684(1/1)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0505551101(10/17)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0505840803(2/2)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0505840876(1/1)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0506999971(2/2)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0535333420(1/1)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      },
+      {
+        "text": "0536696666(2/2)",
+        "title": null,
+        "resolvedDeviceId": null,
+        "resolutionMethod": "unresolved",
+        "statusIconClasses": [
+          "user-icon device-icon",
+          "more_icon"
+        ]
+      }
+    ]
+  },
+  "statusIconInference": {
+    "mappings": [],
+    "validated": false,
+    "reason": "no_icon_samples"
+  }
+}

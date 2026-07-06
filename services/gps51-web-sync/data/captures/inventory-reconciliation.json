@@ -1,0 +1,13 @@
+{
+  "gps51VisibleDevices": 605,
+  "parsedUniqueDevices": 605,
+  "insertedDevices": 0,
+  "updatedDevices": 605,
+  "unchangedDevices": 0,
+  "databaseDevicesAfterSync": 605,
+  "devicesWithSimNo": 0,
+  "devicesWithVideo": 605,
+  "errors": [],
+  "startedAt": "2026-07-05T23:49:28.177Z",
+  "finishedAt": "2026-07-05T23:50:55.446Z"
+}

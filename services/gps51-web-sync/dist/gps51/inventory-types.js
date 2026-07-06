@@ -1,0 +1,1 @@
+export const MIN_INVENTORY_DEVICE_COUNT = 550;

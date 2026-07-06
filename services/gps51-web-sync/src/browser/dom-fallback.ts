@@ -6,6 +6,7 @@ import {
 } from "../gps51/selectors.js";
 import type { NormalizedGps51Device } from "../gps51/types.js";
 import { normalizeDeviceRecord } from "../gps51/normalizer.js";
+import { scrollDeviceTreeSafely } from "./monitor-dom-safety.js";
 
 export async function scrapeDevicesFromDom(
   page: Page,
@@ -91,17 +92,5 @@ function isForbiddenInteraction(text: string): boolean {
 }
 
 export async function safeScrollDeviceTree(page: Page): Promise<void> {
-  const scrollers = page.locator(
-    ".device-tree, .tree, [class*='device-list'], [class*='sidebar'], .ivu-tree, .el-tree",
-  );
-  const count = await scrollers.count();
-  for (let i = 0; i < count; i++) {
-    await scrollers
-      .nth(i)
-      .evaluate((el) => {
-        el.scrollTop = Math.min(el.scrollTop + 400, el.scrollHeight);
-      })
-      .catch(() => undefined);
-    await page.waitForTimeout(300);
-  }
+  await scrollDeviceTreeSafely(page);
 }

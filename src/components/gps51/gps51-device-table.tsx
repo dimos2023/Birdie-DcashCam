@@ -13,11 +13,18 @@ import {
 import type { Gps51WebDeviceLive } from "@/lib/types";
 import {
   GPS51_SOURCE_LABEL,
+  UNKNOWN_STATUS_TOOLTIP,
   formatCoordinates,
   getDisplayStatus,
   statusBadgeClass,
   statusLabel,
 } from "@/lib/gps51/fleet-utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Gps51TimeCell } from "@/components/gps51/gps51-time-cell";
 import { cn } from "@/lib/utils";
 
@@ -83,12 +90,28 @@ export function Gps51DeviceTable({
                     {device.group_path ?? "—"}
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={cn("border", statusBadgeClass(displayStatus))}
-                    >
-                      {statusLabel(displayStatus)}
-                    </Badge>
+                    {displayStatus === "unknown" ? (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger
+                            className={cn(
+                              "inline-flex cursor-default rounded-full border px-2.5 py-0.5 text-xs font-semibold",
+                              statusBadgeClass(displayStatus)
+                            )}
+                          >
+                            {statusLabel(displayStatus)}
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">{UNKNOWN_STATUS_TOOLTIP}</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                      <Badge
+                        variant="outline"
+                        className={cn("border", statusBadgeClass(displayStatus))}
+                      >
+                        {statusLabel(displayStatus)}
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Gps51TimeCell value={device.last_seen_at} />

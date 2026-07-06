@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ParsedPositionLast } from "../gps51/position-last-parser.js";
-import { buildOnlineMetadata } from "../gps51/offline-state-manager.js";
+import { buildWebsocketPositionMetadata } from "../gps51/offline-state-manager.js";
 
 export type KnownDevice = {
   id: string;
@@ -125,10 +125,7 @@ export async function insertLivePosition(
     throw new Error(error.message);
   }
 
-  const mergedMetadata = {
-    ...(device.metadata ?? {}),
-    ...buildOnlineMetadata(),
-  };
+  const mergedMetadata = buildWebsocketPositionMetadata(device.metadata);
 
   const { error: deviceError } = await sb
     .from("gps51_web_devices")

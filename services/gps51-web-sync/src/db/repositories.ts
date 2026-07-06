@@ -74,7 +74,7 @@ export async function startSyncRun(
   sb: SupabaseClient,
   organizationId: string,
   accountId: string,
-  mode: "sync" | "discover" | "one_shot" | "live" = "sync",
+  mode: "sync" | "discover" | "one_shot" | "live" | "status_bootstrap" | "status_tree" = "sync",
 ): Promise<string> {
   const { data, error } = await sb
     .from("gps51_web_sync_runs")

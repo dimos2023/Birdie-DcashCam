@@ -1,0 +1,37 @@
+{
+  "status": "success",
+  "portalCounts": {
+    "all": 605,
+    "online": 120,
+    "offline": 485,
+    "allBefore": 605,
+    "allAfter": 605,
+    "onlineBefore": 120,
+    "onlineAfter": 120,
+    "offlineBefore": 485,
+    "offlineAfter": 485
+  },
+  "inventoryDeviceCount": 605,
+  "fieldCandidateCount": 42,
+  "modelCandidateCount": 4,
+  "recommendedSource": null,
+  "recommendedFieldPath": null,
+  "recommendedMapping": null,
+  "extractedCounts": {
+    "all": 0,
+    "online": 0,
+    "offline": 0
+  },
+  "onlineOfflineIntersection": [],
+  "unionCount": 0,
+  "inventoryOverlapPercentage": 0,
+  "validated": false,
+  "validationReasons": [
+    "all_count_delta_605",
+    "online_count_delta_120",
+    "offline_count_delta_485",
+    "inventory_overlap_0"
+  ],
+  "failureCategory": "model_count_mismatch",
+  "generatedAt": "2026-07-06T10:26:49.276Z"
+}
