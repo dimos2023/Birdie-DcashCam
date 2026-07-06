@@ -1,4 +1,4 @@
-﻿import "dotenv/config";
+import "dotenv/config";
 import { existsSync, mkdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,6 +38,7 @@ const envSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
   ORGANIZATION_ID: z.string().trim().regex(POSTGRES_UUID_REGEX, "Invalid PostgreSQL UUID"),
 
+  HEALTH_HOST: z.string().min(1).default("0.0.0.0"),
   HEALTH_PORT: z.coerce.number().int().min(1).max(65535).default(8091),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
 });

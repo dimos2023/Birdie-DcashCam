@@ -48,8 +48,8 @@ export function createHealthServer(config: AppConfig, log: Logger) {
   });
 
   app
-    .listen({ host: "127.0.0.1", port: config.HEALTH_PORT })
-    .then(() => log.info({ port: config.HEALTH_PORT, bind: "127.0.0.1" }, "Health server listening"))
+    .listen({ host: config.HEALTH_HOST, port: config.HEALTH_PORT })
+    .then(() => log.info({ port: config.HEALTH_PORT, bind: config.HEALTH_HOST }, "Health server listening"))
     .catch((err) => log.error({ err }, "Health server failed"));
 
   return app;
