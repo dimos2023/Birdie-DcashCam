@@ -25,6 +25,7 @@ export type {
   JtCommand,
   JtStreamSession,
   JtTerminalLive,
+  Gps51WebDeviceLive,
 } from "@/types/database";
 
 export const BRAND_COLORS = {
