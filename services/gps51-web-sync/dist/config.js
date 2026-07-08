@@ -35,6 +35,16 @@ const envSchema = z.object({
     GPS51_STATUS_BOOTSTRAP_MAX_PORTAL_DELTA: z.coerce.number().int().min(0).default(5),
     GPS51_STATUS_DOM_MAX_DELTA: z.coerce.number().int().min(0).default(2),
     GPS51_STATUS_DOM_MIN_OVERLAP_PERCENT: z.coerce.number().int().min(50).max(100).default(99),
+    GPS51_POSITION_CACHE_ENABLED: z
+        .string()
+        .optional()
+        .default("true")
+        .transform((v) => v === "true" || v === "1"),
+    GPS51_POSITION_SELECTION_DELAY_MS: z.coerce.number().int().min(500).max(30_000).default(1500),
+    GPS51_POSITION_WAIT_TIMEOUT_MS: z.coerce.number().int().min(1000).max(60_000).default(8000),
+    GPS51_POSITION_MAX_DEVICES_PER_CYCLE: z.coerce.number().int().min(1).max(605).default(100),
+    GPS51_POSITION_STALE_SECONDS: z.coerce.number().int().min(60).default(300),
+    GPS51_POSITION_CACHE_REFRESH_SECONDS: z.coerce.number().int().min(60).default(300),
     SYNC_INTERVAL_SECONDS: z.coerce.number().int().min(15).default(60),
     SYNC_JITTER_SECONDS: z.coerce.number().int().min(0).max(60).default(10),
     SYNC_REQUEST_TIMEOUT_MS: z.coerce.number().int().min(5000).default(30_000),

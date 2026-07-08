@@ -18,3 +18,6 @@ export declare function buildDeviceLookup(devices: KnownDevice[]): Map<string, K
 export declare function insertLivePosition(sb: SupabaseClient, organizationId: string, accountId: string, syncRunId: string | null, device: KnownDevice, position: ParsedPositionLast): Promise<"inserted" | "duplicate" | "error">;
 export declare function markDevicesOffline(sb: SupabaseClient, accountId: string, sourceDeviceIds: string[]): Promise<void>;
 export declare function preservedLinksIntact(before: KnownDevice, after: KnownDevice): boolean;
+export declare function buildTreePositionMetadata(existing: Record<string, unknown> | null, fieldPath: string): Record<string, unknown>;
+export declare function insertTreePosition(sb: SupabaseClient, organizationId: string, accountId: string, syncRunId: string | null, device: KnownDevice, position: ParsedPositionLast, fieldPath: string): Promise<"inserted" | "duplicate" | "error">;
+export declare function insertCachePosition(sb: SupabaseClient, organizationId: string, accountId: string, syncRunId: string | null, device: KnownDevice, position: ParsedPositionLast): Promise<"inserted" | "duplicate" | "error">;

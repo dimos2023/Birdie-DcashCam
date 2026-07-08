@@ -1,4 +1,5 @@
 import { buildWebsocketPositionMetadata } from "../gps51/offline-state-manager.js";
+import { GPS51_MAP_CACHE_SOURCE } from "../gps51/position-cache-fingerprint.js";
 export async function fetchAccountByUsername(sb, organizationId, username, portalUrl) {
     const { data } = await sb
         .from("gps51_web_accounts")
@@ -125,4 +126,102 @@ export function preservedLinksIntact(before, after) {
     if (before.customer_id && !after.customer_id)
         return false;
     return true;
+}
+export function buildTreePositionMetadata(existing, fieldPath) {
+    return {
+        ...(existing ?? {}),
+        position_source: "cache_mgr_last_positions",
+        position_field_path: fieldPath,
+        last_tree_position_at: new Date().toISOString(),
+    };
+}
+export async function insertTreePosition(sb, organizationId, accountId, syncRunId, device, position, fieldPath) {
+    const { error } = await sb.from("gps51_web_positions").insert({
+        organization_id: organizationId,
+        account_id: accountId,
+        gps51_device_id: device.id,
+        sync_run_id: syncRunId,
+        source_position_id: position.sourcePositionId,
+        source_updated_at: position.sourceUpdatedAt,
+        source_located_at: position.sourceLocatedAt,
+        latitude: position.latitude,
+        longitude: position.longitude,
+        speed_kmh: position.speedKmh,
+        acc_on: position.accOn,
+        status_text: position.statusText,
+        satellite_count: position.satelliteCount,
+        cellular_signal_percent: position.signalStrength,
+        altitude_m: position.altitudeM,
+        direction_deg: position.directionDeg,
+        status_bits: position.statusBits,
+        alarm_bits: position.alarmBits,
+        positioned: position.positioned,
+        moving: position.moving,
+        raw_payload: position.rawPayload,
+    });
+    if (error) {
+        if (error.code === "23505")
+            return "duplicate";
+        throw new Error(error.message);
+    }
+    const mergedMetadata = buildTreePositionMetadata(device.metadata, fieldPath);
+    const { error: deviceError } = await sb
+        .from("gps51_web_devices")
+        .update({
+        last_scraped_at: new Date().toISOString(),
+        latitude: position.latitude,
+        longitude: position.longitude,
+        speed_kmh: position.speedKmh,
+        acc_on: position.accOn,
+        status_text: position.statusText,
+        satellite_count: position.satelliteCount,
+        cellular_signal_percent: position.signalStrength,
+        source_updated_at: position.sourceUpdatedAt,
+        source_located_at: position.sourceLocatedAt,
+        metadata: mergedMetadata,
+    })
+        .eq("id", device.id);
+    if (deviceError)
+        throw new Error(deviceError.message);
+    return "inserted";
+}
+export async function insertCachePosition(sb, organizationId, accountId, syncRunId, device, position) {
+    const { error } = await sb.from("gps51_web_positions").insert({
+        organization_id: organizationId,
+        account_id: accountId,
+        gps51_device_id: device.id,
+        sync_run_id: syncRunId,
+        source_position_id: position.sourcePositionId,
+        source_updated_at: position.sourceUpdatedAt,
+        source_located_at: position.sourceLocatedAt,
+        latitude: position.latitude,
+        longitude: position.longitude,
+        speed_kmh: position.speedKmh,
+        acc_on: position.accOn,
+        status_text: position.statusText,
+        satellite_count: position.satelliteCount,
+        cellular_signal_percent: position.signalStrength,
+        altitude_m: position.altitudeM,
+        direction_deg: position.directionDeg,
+        status_bits: position.statusBits,
+        alarm_bits: position.alarmBits,
+        positioned: position.positioned,
+        moving: position.moving,
+        position_source: GPS51_MAP_CACHE_SOURCE,
+        raw_payload: {
+            ...position.rawPayload,
+            _metadata: {
+                ...(typeof position.rawPayload._metadata === "object" && position.rawPayload._metadata
+                    ? position.rawPayload._metadata
+                    : {}),
+                position_source: GPS51_MAP_CACHE_SOURCE,
+            },
+        },
+    });
+    if (error) {
+        if (error.code === "23505")
+            return "duplicate";
+        throw new Error(error.message);
+    }
+    return "inserted";
 }

@@ -10,6 +10,7 @@ import { buildDeviceLookup, buildLatestUpdateMap, fetchAccountByUsername, fetchK
 import { ensureInventoryAccount } from "../db/inventory-repository.js";
 import { finishSyncRun, markAccountReauth, markAccountSynced, startSyncRun, } from "../db/repositories.js";
 import { refreshTreeStatusesFromDedicatedPage } from "./status-refresh.js";
+import { refreshPositionsFromDedicatedPage } from "./position-cache-refresh.js";
 import { incrementLivePositionsAccepted, incrementLivePositionsRejected, resetLiveSyncMetrics, setLiveAuthenticated, setLiveReauthRequired, setLiveUniqueDevicesSeen, incrementLiveReconnectCount, } from "./live-sync-metrics.js";
 export class LiveReauthRequiredError extends Error {
     constructor() {
@@ -91,14 +92,24 @@ async function runLiveSession(sb, config, log, mode) {
     let context = null;
     let detachWs = null;
     let statusRefreshTimer = null;
+    let positionCacheRefreshTimer = null;
     const networkCapture = new NetworkCapture();
     const statusPageRef = { page: null };
+    const positionPageRef = { page: null };
     const refreshStatuses = async (reason) => {
         if (!context || !sb || !accountId)
             return;
         const result = await refreshTreeStatusesFromDedicatedPage(context, sb, accountId, config, log, statusPageRef, knownDeviceIds);
         if (result.refreshed) {
             log.info({ reason, ...result }, "Periodic GPS51 tree status refresh");
+        }
+    };
+    const refreshPositionCache = async (reason) => {
+        if (!context || !sb || !accountId || !config.GPS51_POSITION_CACHE_ENABLED)
+            return;
+        const result = await refreshPositionsFromDedicatedPage(context, sb, config, log, positionPageRef, knownDeviceIds);
+        if (result.refreshed) {
+            log.info({ reason, ...result }, "Periodic GPS51 map cache position refresh");
         }
     };
     try {
@@ -133,6 +144,12 @@ async function runLiveSession(sb, config, log, mode) {
             statusRefreshTimer = setInterval(() => {
                 void refreshStatuses("periodic");
             }, config.GPS51_STATUS_REFRESH_SECONDS * 1000);
+            if (config.GPS51_POSITION_CACHE_ENABLED) {
+                await refreshPositionCache("startup");
+                positionCacheRefreshTimer = setInterval(() => {
+                    void refreshPositionCache("periodic");
+                }, config.GPS51_POSITION_CACHE_REFRESH_SECONDS * 1000);
+            }
         }
         const started = Date.now();
         while (Date.now() - started < durationMs) {
@@ -164,9 +181,13 @@ async function runLiveSession(sb, config, log, mode) {
     finally {
         if (statusRefreshTimer)
             clearInterval(statusRefreshTimer);
+        if (positionCacheRefreshTimer)
+            clearInterval(positionCacheRefreshTimer);
         detachWs?.();
         if (statusPageRef.page)
             await statusPageRef.page.close().catch(() => undefined);
+        if (positionPageRef.page)
+            await positionPageRef.page.close().catch(() => undefined);
         if (page)
             await page.context().close().catch(() => undefined);
         if (browser)

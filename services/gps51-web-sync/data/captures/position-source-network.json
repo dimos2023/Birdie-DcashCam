@@ -1,0 +1,73 @@
+{
+  "selectedDeviceId": "18270661442",
+  "excludedActions": [
+    "reportmileagedetail",
+    "poibatch"
+  ],
+  "entries": [
+    {
+      "action": "reportmileagedetail",
+      "body": {
+        "status": 0,
+        "cause": "OK",
+        "deviceid": "18270661442",
+        "records": [
+          {
+            "dailydetailreportid": 0,
+            "deviceid": "18270661442",
+            "statisticsday": "2026-07-06",
+            "timezoneoffset": 8,
+            "createtime": 1783351390569,
+            "starttime": 1783267203162,
+            "endtime": 1783351386186,
+            "begindis": 3100,
+            "enddis": 16400,
+            "mintotaldistance": 3100,
+            "maxtotaldistance": 16400,
+            "beginoil": -1,
+            "endoil": 0,
+            "addoil": 0,
+            "leakoil": 0,
+            "idleoil": 0,
+            "totalacc": 84003405,
+            "totalidle": 0,
+            "totaldistance": 13300,
+            "totaloil": 0,
+            "totalnotrunningad": 0,
+            "beginnotrunningad": -1,
+            "endnotrunningad": 0,
+            "addnotrunningad": 0,
+            "leaknotrunningad": 0,
+            "idlenotrunningad": 0,
+            "oilper100km": 0,
+            "runoilper100km": 0,
+            "oilperhour": 0,
+            "avgspeed": 0,
+            "onlinestatus": 1
+          }
+        ]
+      },
+      "url": "https://gps51.com/webapi?action=reportmileagedetail&token=%5BREDACTED%5D&extend=self&serverid=0",
+      "capturedAt": "2026-07-06T15:26:49.455Z"
+    },
+    {
+      "action": "poibatch",
+      "body": {
+        "status": 0,
+        "cause": "OK",
+        "points": [
+          {
+            "status": 0,
+            "cause": "OK",
+            "lat": 26.31673,
+            "lon": 50.17337,
+            "address": "الظهران, محافظة الدمام, المنطقة الشرقية, السعودية"
+          }
+        ]
+      },
+      "url": "https://gps51.com/webapi?action=poibatch&token=%5BREDACTED%5D&extend=self&serverid=0",
+      "capturedAt": "2026-07-06T15:26:50.768Z"
+    }
+  ],
+  "websocketPositionLast": null
+}

@@ -1,0 +1,19 @@
+{
+  "status": "success",
+  "selectedDeviceId": "18270661442",
+  "requestAction": "reportmileagedetail",
+  "requestActions": [
+    "reportmileagedetail",
+    "poibatch"
+  ],
+  "positionLastReceived": false,
+  "responseLatencyMs": null,
+  "latitude": null,
+  "longitude": null,
+  "gpsTimestamp": null,
+  "updateTimestamp": null,
+  "source": "tablesClickRowDevice",
+  "componentPath": "#app.__vue__.$children[0].$children[1].$children[0].$children[1]",
+  "errorMessage": null,
+  "generatedAt": "2026-07-06T15:04:25.559Z"
+}

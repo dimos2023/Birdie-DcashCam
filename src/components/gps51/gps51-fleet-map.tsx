@@ -5,9 +5,11 @@ import { MapPin } from "lucide-react";
 import type { Gps51WebDeviceLive } from "@/lib/types";
 import {
   getDisplayStatus,
+  getPositionSourceLabel,
   hasValidCoordinates,
   markerColor,
   statusLabel,
+  formatRelativeTime,
 } from "@/lib/gps51/fleet-utils";
 import { cn } from "@/lib/utils";
 
@@ -173,6 +175,12 @@ export function Gps51FleetMap({ devices, selectedId, onSelect, className }: Gps5
                     ACC:{" "}
                     {marker.device.acc_on == null ? "—" : marker.device.acc_on ? "On" : "Off"}
                   </p>
+                  <p>
+                    GPS:{" "}
+                    {formatRelativeTime(marker.device.source_located_at ?? marker.device.source_updated_at)}
+                  </p>
+                  <p>Received: {formatRelativeTime(marker.device.received_at)}</p>
+                  <p>Source: {getPositionSourceLabel(marker.device)}</p>
                 </div>
               )}
             </div>

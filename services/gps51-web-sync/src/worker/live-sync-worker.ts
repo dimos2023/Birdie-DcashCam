@@ -29,6 +29,7 @@ import {
   startSyncRun,
 } from "../db/repositories.js";
 import { refreshTreeStatusesFromDedicatedPage } from "./status-refresh.js";
+import { refreshPositionsFromDedicatedPage } from "./position-cache-refresh.js";
 import {
   incrementLivePositionsAccepted,
   incrementLivePositionsRejected,
@@ -162,8 +163,10 @@ async function runLiveSession(
   let context: Awaited<ReturnType<typeof createAuthenticatedContext>> | null = null;
   let detachWs: (() => void) | null = null;
   let statusRefreshTimer: ReturnType<typeof setInterval> | null = null;
+  let positionCacheRefreshTimer: ReturnType<typeof setInterval> | null = null;
   const networkCapture = new NetworkCapture();
   const statusPageRef: { page: Page | null } = { page: null };
+  const positionPageRef: { page: Page | null } = { page: null };
 
   const refreshStatuses = async (reason: string) => {
     if (!context || !sb || !accountId) return;
@@ -178,6 +181,21 @@ async function runLiveSession(
     );
     if (result.refreshed) {
       log.info({ reason, ...result }, "Periodic GPS51 tree status refresh");
+    }
+  };
+
+  const refreshPositionCache = async (reason: string) => {
+    if (!context || !sb || !accountId || !config.GPS51_POSITION_CACHE_ENABLED) return;
+    const result = await refreshPositionsFromDedicatedPage(
+      context,
+      sb,
+      config,
+      log,
+      positionPageRef,
+      knownDeviceIds,
+    );
+    if (result.refreshed) {
+      log.info({ reason, ...result }, "Periodic GPS51 map cache position refresh");
     }
   };
 
@@ -217,6 +235,13 @@ async function runLiveSession(
       statusRefreshTimer = setInterval(() => {
         void refreshStatuses("periodic");
       }, config.GPS51_STATUS_REFRESH_SECONDS * 1000);
+
+      if (config.GPS51_POSITION_CACHE_ENABLED) {
+        await refreshPositionCache("startup");
+        positionCacheRefreshTimer = setInterval(() => {
+          void refreshPositionCache("periodic");
+        }, config.GPS51_POSITION_CACHE_REFRESH_SECONDS * 1000);
+      }
     }
 
     const started = Date.now();
@@ -248,8 +273,10 @@ async function runLiveSession(
     }
   } finally {
     if (statusRefreshTimer) clearInterval(statusRefreshTimer);
+    if (positionCacheRefreshTimer) clearInterval(positionCacheRefreshTimer);
     detachWs?.();
     if (statusPageRef.page) await statusPageRef.page.close().catch(() => undefined);
+    if (positionPageRef.page) await positionPageRef.page.close().catch(() => undefined);
     if (page) await page.context().close().catch(() => undefined);
     if (browser) await browser.close().catch(() => undefined);
   }

@@ -200,8 +200,8 @@ export function Gps51FleetMonitor({
           <WifiOff className="h-4 w-4" />
           <AlertTitle>Inventory loaded — live positions pending</AlertTitle>
           <AlertDescription>
-            All synchronized devices are visible below. GPS coordinates will appear when the live
-            WebSocket worker writes positions to Supabase.
+            All synchronized devices are visible below. GPS coordinates will appear when the map
+            cache position sync or live WebSocket worker writes positions to Supabase.
           </AlertDescription>
         </Alert>
       )}

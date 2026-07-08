@@ -30,6 +30,13 @@ export type LiveSyncMetrics = {
     statusRefreshErrors: number;
     statusValidationErrors: string[];
     statusChangedDeviceCount: number;
+    lastPositionCacheRefreshAt: string | null;
+    positionCacheRefreshSuccess: boolean;
+    positionCacheDevicesAttempted: number;
+    positionCacheValidPositions: number;
+    positionCacheMissingPositions: number;
+    positionCacheErrors: number;
+    positionCacheCurrentDeviceId: string | null;
 };
 export declare function getLiveSyncMetrics(): LiveSyncMetrics;
 export declare function resetLiveSyncMetrics(): void;
@@ -53,4 +60,13 @@ export declare function setStatusValidationErrors(errors: string[]): void;
 export declare function setStatusRefreshSuccess(success: boolean): void;
 export declare function setStatusRefreshCounts(online: number, offline: number, unknown: number): void;
 export declare function incrementStatusRefreshErrors(): void;
+export declare function setPositionCacheRefreshSuccess(success: boolean): void;
+export declare function setPositionCacheRefreshMetrics(input: {
+    devicesAttempted: number;
+    validPositions: number;
+    missingPositions: number;
+    cacheHits: number;
+}): void;
+export declare function incrementPositionCacheErrors(): void;
+export declare function setPositionCacheCurrentDeviceId(deviceId: string | null): void;
 export declare function liveMetricsForHealth(): Record<string, unknown>;

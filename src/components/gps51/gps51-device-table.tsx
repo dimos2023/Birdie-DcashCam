@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import type { Gps51WebDeviceLive } from "@/lib/types";
 import {
-  GPS51_SOURCE_LABEL,
+  getPositionSourceLabel,
   UNKNOWN_STATUS_TOOLTIP,
   formatCoordinates,
   getDisplayStatus,
@@ -135,7 +135,7 @@ export function Gps51DeviceTable({
                   </TableCell>
                   <TableCell>{device.satellite_count ?? "—"}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{GPS51_SOURCE_LABEL}</Badge>
+                    <Badge variant="secondary">{getPositionSourceLabel(device)}</Badge>
                   </TableCell>
                 </TableRow>
               );

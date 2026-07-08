@@ -1,0 +1,46 @@
+{
+  "componentPath": "#app.__vue__.$children[0].$children[1].$children[0].$children[1]",
+  "componentName": "DeviceList",
+  "semanticFields": {
+    "deviceid": [
+      {
+        "path": "info.deviceid",
+        "count": 605
+      }
+    ],
+    "devicename": [
+      {
+        "path": "name",
+        "count": 605
+      }
+    ],
+    "latitude": [],
+    "longitude": [],
+    "speed": [],
+    "direction": [],
+    "altitude": [],
+    "acc": [],
+    "moving": [],
+    "positioned": [],
+    "signal": [],
+    "satellites": [],
+    "gpsTime": [],
+    "updateTime": [],
+    "sim": [],
+    "model": []
+  },
+  "fieldCounts": {
+    "id": 605,
+    "parentId": 605,
+    "name": 605,
+    "deviceState": 605,
+    "icon": 605,
+    "indeterminate": 605,
+    "online": 605,
+    "checked": 605,
+    "info.deviceid": 605,
+    "info.nodeType": 605,
+    "info.level": 605
+  },
+  "inventoryCount": 605
+}

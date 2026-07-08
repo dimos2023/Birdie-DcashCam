@@ -4,6 +4,8 @@ import type { Gps51WebDeviceLive } from "@/lib/types";
 export type Gps51DisplayStatus = "online" | "offline" | "unknown";
 
 export const GPS51_SOURCE_LABEL = "GPS51 Web";
+export const GPS51_MAP_CACHE_SOURCE_LABEL = "GPS51 Web Map Cache";
+export const GPS51_WEBSOCKET_SOURCE_LABEL = "GPS51 Web WebSocket";
 export const RECENTLY_UPDATED_MS = 10 * 60 * 1000;
 export const PAGE_SIZE = 50;
 
@@ -11,7 +13,20 @@ export const UNKNOWN_STATUS_TOOLTIP =
   "Status could not be determined from the latest validated GPS51 DeviceList tree snapshot.";
 
 export const STATUS_SNAPSHOT_TOOLTIP =
-  "Device connectivity status comes from the latest validated GPS51 Monitor status snapshot. Position availability is updated separately through the GPS51 WebSocket.";
+  "Device connectivity status comes from the latest validated GPS51 Monitor status snapshot. Position availability is updated separately through the GPS51 map cache and WebSocket workers.";
+
+export function getPositionSourceLabel(
+  device: Pick<
+    Gps51WebDeviceLive,
+    "source_position_id" | "received_at" | "latitude" | "longitude" | "position_source"
+  >,
+): string {
+  if (!hasValidCoordinates(device)) return GPS51_SOURCE_LABEL;
+  if (device.position_source) return device.position_source;
+  if (device.source_position_id != null) return GPS51_WEBSOCKET_SOURCE_LABEL;
+  if (device.received_at) return GPS51_MAP_CACHE_SOURCE_LABEL;
+  return GPS51_SOURCE_LABEL;
+}
 
 export function hasValidCoordinates(
   device: Pick<Gps51WebDeviceLive, "latitude" | "longitude">

@@ -13,11 +13,11 @@ import {
 } from "@/components/ui/sheet";
 import type { Gps51WebDeviceLive } from "@/lib/types";
 import {
-  GPS51_SOURCE_LABEL,
   formatCoordinates,
   formatExactTime,
   formatRelativeTime,
   getDisplayStatus,
+  getPositionSourceLabel,
   googleMapsUrl,
   hasValidCoordinates,
   statusBadgeClass,
@@ -145,7 +145,18 @@ export function Gps51DeviceDetailsSheet({
               </>
             }
           />
-          <DetailRow label="Source" value={<Badge variant="secondary">{GPS51_SOURCE_LABEL}</Badge>} />
+          <DetailRow
+            label="Received Time"
+            value={
+              <>
+                {formatRelativeTime(device.received_at)}
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  {formatExactTime(device.received_at)}
+                </span>
+              </>
+            }
+          />
+          <DetailRow label="Source" value={<Badge variant="secondary">{getPositionSourceLabel(device)}</Badge>} />
         </div>
 
         {hasCoords && (

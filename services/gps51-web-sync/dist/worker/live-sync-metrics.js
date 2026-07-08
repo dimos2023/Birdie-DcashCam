@@ -30,6 +30,13 @@ const metrics = {
     statusRefreshErrors: 0,
     statusValidationErrors: [],
     statusChangedDeviceCount: 0,
+    lastPositionCacheRefreshAt: null,
+    positionCacheRefreshSuccess: false,
+    positionCacheDevicesAttempted: 0,
+    positionCacheValidPositions: 0,
+    positionCacheMissingPositions: 0,
+    positionCacheErrors: 0,
+    positionCacheCurrentDeviceId: null,
 };
 export function getLiveSyncMetrics() {
     return { ...metrics };
@@ -66,6 +73,13 @@ export function resetLiveSyncMetrics() {
     metrics.statusRefreshErrors = 0;
     metrics.statusValidationErrors = [];
     metrics.statusChangedDeviceCount = 0;
+    metrics.lastPositionCacheRefreshAt = null;
+    metrics.positionCacheRefreshSuccess = false;
+    metrics.positionCacheDevicesAttempted = 0;
+    metrics.positionCacheValidPositions = 0;
+    metrics.positionCacheMissingPositions = 0;
+    metrics.positionCacheErrors = 0;
+    metrics.positionCacheCurrentDeviceId = null;
 }
 export function setLiveAuthenticated(value) {
     metrics.authenticated = value;
@@ -140,6 +154,23 @@ export function incrementStatusRefreshErrors() {
     metrics.statusRefreshErrors += 1;
     metrics.statusRefreshSuccess = false;
 }
+export function setPositionCacheRefreshSuccess(success) {
+    metrics.positionCacheRefreshSuccess = success;
+    if (success)
+        metrics.lastPositionCacheRefreshAt = new Date().toISOString();
+}
+export function setPositionCacheRefreshMetrics(input) {
+    metrics.positionCacheDevicesAttempted = input.devicesAttempted;
+    metrics.positionCacheValidPositions = input.validPositions;
+    metrics.positionCacheMissingPositions = input.missingPositions;
+}
+export function incrementPositionCacheErrors() {
+    metrics.positionCacheErrors += 1;
+    metrics.positionCacheRefreshSuccess = false;
+}
+export function setPositionCacheCurrentDeviceId(deviceId) {
+    metrics.positionCacheCurrentDeviceId = deviceId;
+}
 export function liveMetricsForHealth() {
     const m = getLiveSyncMetrics();
     return {
@@ -188,5 +219,15 @@ export function liveMetricsForHealth() {
         gps51_status_offline_count: m.statusOfflineCount,
         gps51_status_unknown_count: m.statusUnknownCount,
         gps51_status_refresh_errors_total: m.statusRefreshErrors,
+        lastPositionCacheRefreshAt: m.lastPositionCacheRefreshAt,
+        positionCacheRefreshSuccess: m.positionCacheRefreshSuccess,
+        positionCacheDevicesAttempted: m.positionCacheDevicesAttempted,
+        positionCacheValidPositions: m.positionCacheValidPositions,
+        positionCacheMissingPositions: m.positionCacheMissingPositions,
+        positionCacheErrors: m.positionCacheErrors,
+        positionCacheCurrentDeviceId: m.positionCacheCurrentDeviceId,
+        gps51_position_cache_refresh_success: m.positionCacheRefreshSuccess ? 1 : 0,
+        gps51_position_cache_valid_positions: m.positionCacheValidPositions,
+        gps51_position_cache_errors_total: m.positionCacheErrors,
     };
 }

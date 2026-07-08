@@ -30,6 +30,13 @@ export type LiveSyncMetrics = {
   statusRefreshErrors: number;
   statusValidationErrors: string[];
   statusChangedDeviceCount: number;
+  lastPositionCacheRefreshAt: string | null;
+  positionCacheRefreshSuccess: boolean;
+  positionCacheDevicesAttempted: number;
+  positionCacheValidPositions: number;
+  positionCacheMissingPositions: number;
+  positionCacheErrors: number;
+  positionCacheCurrentDeviceId: string | null;
 };
 
 const metrics: LiveSyncMetrics = {
@@ -64,6 +71,13 @@ const metrics: LiveSyncMetrics = {
   statusRefreshErrors: 0,
   statusValidationErrors: [],
   statusChangedDeviceCount: 0,
+  lastPositionCacheRefreshAt: null,
+  positionCacheRefreshSuccess: false,
+  positionCacheDevicesAttempted: 0,
+  positionCacheValidPositions: 0,
+  positionCacheMissingPositions: 0,
+  positionCacheErrors: 0,
+  positionCacheCurrentDeviceId: null,
 };
 
 export function getLiveSyncMetrics(): LiveSyncMetrics {
@@ -102,6 +116,13 @@ export function resetLiveSyncMetrics(): void {
   metrics.statusRefreshErrors = 0;
   metrics.statusValidationErrors = [];
   metrics.statusChangedDeviceCount = 0;
+  metrics.lastPositionCacheRefreshAt = null;
+  metrics.positionCacheRefreshSuccess = false;
+  metrics.positionCacheDevicesAttempted = 0;
+  metrics.positionCacheValidPositions = 0;
+  metrics.positionCacheMissingPositions = 0;
+  metrics.positionCacheErrors = 0;
+  metrics.positionCacheCurrentDeviceId = null;
 }
 
 export function setLiveAuthenticated(value: boolean): void {
@@ -203,6 +224,31 @@ export function incrementStatusRefreshErrors(): void {
   metrics.statusRefreshSuccess = false;
 }
 
+export function setPositionCacheRefreshSuccess(success: boolean): void {
+  metrics.positionCacheRefreshSuccess = success;
+  if (success) metrics.lastPositionCacheRefreshAt = new Date().toISOString();
+}
+
+export function setPositionCacheRefreshMetrics(input: {
+  devicesAttempted: number;
+  validPositions: number;
+  missingPositions: number;
+  cacheHits: number;
+}): void {
+  metrics.positionCacheDevicesAttempted = input.devicesAttempted;
+  metrics.positionCacheValidPositions = input.validPositions;
+  metrics.positionCacheMissingPositions = input.missingPositions;
+}
+
+export function incrementPositionCacheErrors(): void {
+  metrics.positionCacheErrors += 1;
+  metrics.positionCacheRefreshSuccess = false;
+}
+
+export function setPositionCacheCurrentDeviceId(deviceId: string | null): void {
+  metrics.positionCacheCurrentDeviceId = deviceId;
+}
+
 export function liveMetricsForHealth(): Record<string, unknown> {
   const m = getLiveSyncMetrics();
   return {
@@ -251,5 +297,15 @@ export function liveMetricsForHealth(): Record<string, unknown> {
     gps51_status_offline_count: m.statusOfflineCount,
     gps51_status_unknown_count: m.statusUnknownCount,
     gps51_status_refresh_errors_total: m.statusRefreshErrors,
+    lastPositionCacheRefreshAt: m.lastPositionCacheRefreshAt,
+    positionCacheRefreshSuccess: m.positionCacheRefreshSuccess,
+    positionCacheDevicesAttempted: m.positionCacheDevicesAttempted,
+    positionCacheValidPositions: m.positionCacheValidPositions,
+    positionCacheMissingPositions: m.positionCacheMissingPositions,
+    positionCacheErrors: m.positionCacheErrors,
+    positionCacheCurrentDeviceId: m.positionCacheCurrentDeviceId,
+    gps51_position_cache_refresh_success: m.positionCacheRefreshSuccess ? 1 : 0,
+    gps51_position_cache_valid_positions: m.positionCacheValidPositions,
+    gps51_position_cache_errors_total: m.positionCacheErrors,
   };
 }

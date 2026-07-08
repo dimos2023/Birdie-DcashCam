@@ -9,7 +9,7 @@ export type WebAccount = {
 export declare function ensureAccount(sb: SupabaseClient, organizationId: string, username: string, portalUrl: string, monitorUrl: string): Promise<WebAccount>;
 export declare function markAccountReauth(sb: SupabaseClient, accountId: string, message: string): Promise<void>;
 export declare function markAccountSynced(sb: SupabaseClient, accountId: string, status: string, error?: string | null): Promise<void>;
-export declare function startSyncRun(sb: SupabaseClient, organizationId: string, accountId: string, mode?: "sync" | "discover" | "one_shot" | "live" | "status_bootstrap" | "status_tree"): Promise<string>;
+export declare function startSyncRun(sb: SupabaseClient, organizationId: string, accountId: string, mode?: "sync" | "discover" | "one_shot" | "live" | "status_bootstrap" | "status_tree" | "positions_tree" | "position_cache"): Promise<string>;
 export declare function finishSyncRun(sb: SupabaseClient, runId: string, patch: {
     status: string;
     devices_visible?: number;

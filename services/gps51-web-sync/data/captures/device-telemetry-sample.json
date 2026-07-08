@@ -1,0 +1,85 @@
+{
+  "treeNodeSamples": [
+    {
+      "deviceId": "18271201699",
+      "fields": {
+        "id": "device-18271201699",
+        "parentId": "null-0",
+        "name": "0503417684",
+        "deviceState": "",
+        "icon": "video-car-offline",
+        "indeterminate": false,
+        "online": 0,
+        "checked": false,
+        "info.deviceid": "18271201699",
+        "info.nodeType": "videod",
+        "info.level": 2
+      }
+    },
+    {
+      "deviceId": "18270661338",
+      "fields": {
+        "id": "device-18270661338",
+        "parentId": "null-0",
+        "name": "18270661338",
+        "deviceState": "",
+        "icon": "video-car-offline",
+        "indeterminate": false,
+        "online": 0,
+        "checked": false,
+        "info.deviceid": "18270661338",
+        "info.nodeType": "videod",
+        "info.level": 2
+      }
+    },
+    {
+      "deviceId": "18270661442",
+      "fields": {
+        "id": "device-18270661442",
+        "parentId": "null-0",
+        "name": "18270661442",
+        "deviceState": "Due in 18D",
+        "icon": "video-car-offline",
+        "indeterminate": false,
+        "online": 0,
+        "checked": false,
+        "info.deviceid": "18270661442",
+        "info.nodeType": "videod",
+        "info.level": 2
+      }
+    },
+    {
+      "deviceId": "18270661565",
+      "fields": {
+        "id": "device-18270661565",
+        "parentId": "null-0",
+        "name": "18270661565",
+        "deviceState": "",
+        "icon": "video-car-offline",
+        "indeterminate": false,
+        "online": 0,
+        "checked": false,
+        "info.deviceid": "18270661565",
+        "info.nodeType": "videod",
+        "info.level": 2
+      }
+    },
+    {
+      "deviceId": "18270661594",
+      "fields": {
+        "id": "device-18270661594",
+        "parentId": "null-0",
+        "name": "18270661594",
+        "deviceState": "",
+        "icon": "video-car-offline",
+        "indeterminate": false,
+        "online": 0,
+        "checked": false,
+        "info.deviceid": "18270661594",
+        "info.nodeType": "videod",
+        "info.level": 2
+      }
+    }
+  ],
+  "positionLastSample": null
+}

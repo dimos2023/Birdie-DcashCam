@@ -1,0 +1,19 @@
+{
+  "status": "failed",
+  "inventoryCount": 0,
+  "devicesAttempted": 0,
+  "cacheHitsBeforeSelection": 0,
+  "positionsReceivedAfterSelection": 0,
+  "validPositions": 0,
+  "invalidPositions": 0,
+  "missingPositions": 0,
+  "duplicatePositions": 0,
+  "onlineDevicesWithPosition": 0,
+  "offlineDevicesWithPosition": 0,
+  "databaseWrites": 0,
+  "validated": false,
+  "validationReasons": [
+    "new row for relation \"gps51_web_positions\" violates check constraint \"gps51_web_positions_speed_kmh_check\""
+  ],
+  "generatedAt": "2026-07-06T16:18:18.473Z"
+}

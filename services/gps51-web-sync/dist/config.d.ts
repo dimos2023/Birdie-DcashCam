@@ -23,6 +23,12 @@ declare const envSchema: z.ZodObject<{
     GPS51_STATUS_BOOTSTRAP_MAX_PORTAL_DELTA: z.ZodDefault<z.ZodNumber>;
     GPS51_STATUS_DOM_MAX_DELTA: z.ZodDefault<z.ZodNumber>;
     GPS51_STATUS_DOM_MIN_OVERLAP_PERCENT: z.ZodDefault<z.ZodNumber>;
+    GPS51_POSITION_CACHE_ENABLED: z.ZodEffects<z.ZodDefault<z.ZodOptional<z.ZodString>>, boolean, string | undefined>;
+    GPS51_POSITION_SELECTION_DELAY_MS: z.ZodDefault<z.ZodNumber>;
+    GPS51_POSITION_WAIT_TIMEOUT_MS: z.ZodDefault<z.ZodNumber>;
+    GPS51_POSITION_MAX_DEVICES_PER_CYCLE: z.ZodDefault<z.ZodNumber>;
+    GPS51_POSITION_STALE_SECONDS: z.ZodDefault<z.ZodNumber>;
+    GPS51_POSITION_CACHE_REFRESH_SECONDS: z.ZodDefault<z.ZodNumber>;
     SYNC_INTERVAL_SECONDS: z.ZodDefault<z.ZodNumber>;
     SYNC_JITTER_SECONDS: z.ZodDefault<z.ZodNumber>;
     SYNC_REQUEST_TIMEOUT_MS: z.ZodDefault<z.ZodNumber>;
@@ -55,6 +61,12 @@ declare const envSchema: z.ZodObject<{
     GPS51_STATUS_BOOTSTRAP_MAX_PORTAL_DELTA: number;
     GPS51_STATUS_DOM_MAX_DELTA: number;
     GPS51_STATUS_DOM_MIN_OVERLAP_PERCENT: number;
+    GPS51_POSITION_CACHE_ENABLED: boolean;
+    GPS51_POSITION_SELECTION_DELAY_MS: number;
+    GPS51_POSITION_WAIT_TIMEOUT_MS: number;
+    GPS51_POSITION_MAX_DEVICES_PER_CYCLE: number;
+    GPS51_POSITION_STALE_SECONDS: number;
+    GPS51_POSITION_CACHE_REFRESH_SECONDS: number;
     SYNC_INTERVAL_SECONDS: number;
     SYNC_JITTER_SECONDS: number;
     SYNC_REQUEST_TIMEOUT_MS: number;
@@ -90,6 +102,12 @@ declare const envSchema: z.ZodObject<{
     GPS51_STATUS_BOOTSTRAP_MAX_PORTAL_DELTA?: number | undefined;
     GPS51_STATUS_DOM_MAX_DELTA?: number | undefined;
     GPS51_STATUS_DOM_MIN_OVERLAP_PERCENT?: number | undefined;
+    GPS51_POSITION_CACHE_ENABLED?: string | undefined;
+    GPS51_POSITION_SELECTION_DELAY_MS?: number | undefined;
+    GPS51_POSITION_WAIT_TIMEOUT_MS?: number | undefined;
+    GPS51_POSITION_MAX_DEVICES_PER_CYCLE?: number | undefined;
+    GPS51_POSITION_STALE_SECONDS?: number | undefined;
+    GPS51_POSITION_CACHE_REFRESH_SECONDS?: number | undefined;
     SYNC_INTERVAL_SECONDS?: number | undefined;
     SYNC_JITTER_SECONDS?: number | undefined;
     SYNC_REQUEST_TIMEOUT_MS?: number | undefined;

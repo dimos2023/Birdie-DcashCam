@@ -1,0 +1,18 @@
+{
+  "status": "success",
+  "mode": "dry",
+  "inventoryCount": 605,
+  "inventorySource": "querydevicestree",
+  "positionSource": "map_component_state",
+  "positionFieldPath": "cacheMgr.lastPositions[deviceId]",
+  "componentPath": "cacheMgr",
+  "validCoordinateCount": 551,
+  "invalidCoordinateCount": 0,
+  "missingCoordinateCount": 54,
+  "databaseWrites": 0,
+  "duplicates": 0,
+  "rejected": 0,
+  "extractionError": null,
+  "errorMessage": null,
+  "generatedAt": "2026-07-06T15:25:58.292Z"
+}

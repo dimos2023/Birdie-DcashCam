@@ -1,0 +1,10 @@
+{
+  "status": "success",
+  "portalCounts": null,
+  "inventoryCount": 605,
+  "inventorySource": "querydevicestree",
+  "componentPath": "#app.__vue__.$children[0].$children[1].$children[0].$children[1]",
+  "telemetryNodeCount": 605,
+  "positionLastObserved": false,
+  "generatedAt": "2026-07-06T15:03:53.344Z"
+}
